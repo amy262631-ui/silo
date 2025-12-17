@@ -3,355 +3,406 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>水泥桶製造層數計算器 (英吋支援版)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <title>silo&骨材庫 容量設計 </title>
     <style>
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f0f2f5; padding: 20px; color: #333; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
-        h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; font-weight: 700; }
-        
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
+        body { font-family: "Microsoft JhengHei", Arial, sans-serif; background: #f4f7f6; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 20px; font-size: 0.9em; }
 
-        .input-section { background: #f8f9fa; padding: 25px; border-radius: 12px; border: 1px solid #e9ecef; }
-        .section-title { font-size: 1.1em; font-weight: 700; color: #495057; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #dee2e6; }
-        .input-group { margin-bottom: 18px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 0.9em; }
-        
-        /* 讓輸入框與單位選單排成一列 */
-        .input-with-unit { display: flex; gap: 10px; }
-        
-        input, select { padding: 12px; border: 2px solid #dfe6e9; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: all 0.3s; font-family: 'Roboto Mono', monospace; }
-        input { width: 100%; }
-        input:focus, select:focus { border-color: #3498db; outline: none; box-shadow: 0 0 0 3px rgba(52,152,219,0.1); }
-        
-        .calc-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #3498db, #2980b9); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
-        .calc-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4); }
+        /* 分頁按鈕 */
+        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; }
+        .tab-btn {
+            flex: 1; padding: 15px; border: none; background: #f1f1f1; 
+            font-size: 1.1em; font-weight: bold; cursor: pointer; color: #888; 
+            transition: 0.2s;
+        }
+        .tab-btn:hover { background: #e9e9e9; }
+        .tab-btn.active { background: #fff; color: #2c3e50; border-bottom: 4px solid #3498db; }
 
-        .result-box { display: none; }
-        .card { background: #fff; border: 1px solid #eee; border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        .card-header { padding: 15px 20px; font-weight: 700; color: #fff; }
-        .card-body { padding: 20px; }
-        .result-row { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px dashed #f1f1f1; padding-bottom: 8px; font-size: 0.95em;}
-        .result-row:last-child { border-bottom: none; }
-        .result-row strong { font-family: 'Roboto Mono', monospace; color: #2d3436; }
-        .highlight-val { color: #e74c3c !important; font-size: 1.2em; }
+        /* 內容區塊 */
+        .tab-content { display: none; } /* 預設隱藏 */
+        .tab-content.active { display: block; } /* 啟用時顯示 */
 
-        .diagram-container { background: #fff; border: 2px solid #eee; border-radius: 12px; padding: 20px; text-align: center; overflow: hidden; }
-        #siloSvg { max-height: 500px; width: auto; max-width: 100%; }
+        .main-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
+        @media (max-width: 800px) { .main-grid { grid-template-columns: 1fr; } }
+
+        /* 輸入區 */
+        .input-panel { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef; }
+        .group-head { font-weight: bold; margin-top: 15px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 2px solid #ddd; color: #444; }
         
-        .svg-dim-line { stroke: #7f8c8d; stroke-width: 1; }
-        .svg-dim-text { font-family: 'Roboto Mono', monospace; font-size: 12px; fill: #7f8c8d; }
-        .svg-silo-body { fill: #bdc3c7; stroke: #7f8c8d; stroke-width: 2; }
-        .svg-silo-cone { fill: #95a5a6; stroke: #7f8c8d; stroke-width: 2; }
-        .svg-layer-line { stroke: #7f8c8d; stroke-width: 1; stroke-dasharray: 4 2; }
+        .input-row { margin-bottom: 10px; }
+        label { display: block; font-size: 0.9em; color: #555; font-weight: bold; margin-bottom: 4px; }
+        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: monospace; font-size: 15px; }
+        input:focus { border-color: #3498db; outline: none; }
+        
+        .dual { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        /* 結果區 */
+        .result-panel { text-align: center; }
+        .info-card { background: #fff; border: 2px solid #eee; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: left; }
+        .res-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.95em; border-bottom: 1px dashed #eee; padding-bottom: 4px; }
+        .res-val { font-weight: bold; font-family: monospace; color: #000; }
+
+        .total-box { padding: 15px; border-radius: 8px; color: white; margin-top: 10px; text-align: center; }
+        .bg-cement { background: #2980b9; }
+        .bg-agg { background: #34495e; }
+        .total-val { font-size: 1.5em; font-weight: bold; color: #f1c40f; }
+
+        svg { width: 100%; height: 400px; background: white; border: 1px solid #ccc; border-radius: 8px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🏗️ 水泥桶製造層數計算器 (英吋版)</h2>
-    
-    <div class="main-grid">
-        <div>
-            <div class="input-section">
-                <div class="section-title">📋 基本需求</div>
-                <div class="input-group">
-                    <label>需求水泥重量 (Tons)</label>
-                    <input type="number" id="weight" value="150">
-                </div>
-                <div class="input-group">
-                    <label>水泥比重 (t/m³)</label>
-                    <input type="number" id="density" value="1.33" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label>安全預留高度 (m) <small style="color:#888;">(Freeboard)</small></label>
-                    <input type="number" id="freeboard" value="0.5" step="0.1">
+    <h2>🏗️ 混凝土廠全能容器設計 (最終修復版)</h2>
+    <div class="subtitle">水泥桶 (圓形) | 骨材庫 (田字型)</div>
+
+    <div class="tabs">
+        <button id="btn-cement" class="tab-btn active" onclick="switchTab('cement')">🟢 水泥桶 (Silo)</button>
+        <button id="btn-agg" class="tab-btn" onclick="switchTab('agg')">🟤 骨材庫 (Bin)</button>
+    </div>
+
+    <div id="tab-cement" class="tab-content active">
+        <div class="main-grid">
+            <div class="input-panel">
+                <div class="group-head" style="margin-top:0;">📋 需求設定</div>
+                <div class="input-row"><label>需求重量 (T)</label><input type="number" id="c_weight" value="150" oninput="runCement()"></div>
+                <div class="input-row"><label>比重 (t/m³)</label><input type="number" id="c_rho" value="1.33" oninput="runCement()"></div>
+                <div class="input-row"><label>預留高 (m)</label><input type="number" id="c_fb" value="0.5" oninput="runCement()"></div>
+
+                <div class="group-head">⚙️ 尺寸參數</div>
+                <div class="input-row"><label>直徑 (m)</label><input type="number" id="c_dia" value="4.37" oninput="runCement()"></div>
+                <div class="input-row"><label>單層板高 (m)</label><input type="number" id="c_plate_h" value="1.5" oninput="runCement()"></div>
+                <div class="dual">
+                    <div><label>錐斗斜度 (°)</label><input type="number" id="c_angle" value="60" oninput="runCement()"></div>
+                    <div><label>出口 (inch)</label><input type="number" id="c_out_inch" value="12" oninput="runCement()"></div>
                 </div>
             </div>
-            <div class="input-section" style="margin-top: 20px;">
-                <div class="section-title">⚙️ 尺寸與製程規格</div>
-                <div class="input-group">
-                    <label>桶身直徑 (m)</label>
-                    <input type="number" id="diameter" value="4.37" step="0.01">
+
+            <div class="result-panel">
+                <div class="info-card">
+                    <div class="res-row"><span>所需層數：</span><span class="res-val" id="res_c_layers">--</span></div>
+                    <div class="res-row"><span>直身高度：</span><span class="res-val" id="res_c_cyl">--</span></div>
+                    <div class="res-row"><span>錐斗高度：</span><span class="res-val" id="res_c_cone">--</span></div>
+                    <div class="res-row" style="background:#eef;"><span>總設計高度：</span><span class="res-val" id="res_c_total" style="color:#007bff">--</span></div>
                 </div>
-                <div class="input-group">
-                    <label>單層鋼板高度 (m)</label>
-                    <input type="number" id="plate_h" value="1.5" step="0.1">
+                <div class="total-box bg-cement">
+                    <div style="font-size:0.9em; opacity:0.8;">預估滿載重量</div>
+                    <div class="total-val"><span id="res_c_max">0</span> T</div>
                 </div>
-                <div class="input-group">
-                    <label>錐斗斜度 (度)</label>
-                    <input type="number" id="angle" value="60">
-                </div>
-                
-                <div class="input-group">
-                    <label>下方出口直徑 (可選英吋)</label>
-                    <div class="input-with-unit">
-                        <input type="number" id="outlet" value="12" step="0.1">
-                        <select id="outlet_unit" style="flex: 0 0 100px;">
-                            <option value="inch" selected>英吋 (")</option>
-                            <option value="m">公尺 (m)</option>
-                        </select>
-                    </div>
-                </div>
-                </div>
-            <button class="calc-btn" onclick="calculateSilo()" style="margin-top: 25px;">開始計算與繪圖</button>
+                <svg id="svgCement" viewBox="0 0 400 500"></svg>
+            </div>
         </div>
+    </div>
 
-        <div id="result" class="result-box">
-            <div class="card">
-                <div class="card-header" style="background: linear-gradient(135deg, #00b894, #00cec9);">🛠️ 製造規格建議</div>
-                <div class="card-body">
-                    <div class="result-row">
-                        <span>直身段需要的層數：</span>
-                        <strong class="highlight-val"><span id="res-layers"></span> 層</strong>
-                    </div>
-                    <div class="result-row">
-                        <span>單層板高：</span>
-                        <strong><span id="res-plate-h"></span> m</strong>
-                    </div>
-                    <div class="result-row">
-                        <span>直身段實際高度：</span>
-                        <strong><span id="res-cyl-h-actual"></span> m</strong>
-                    </div>
-                    <div class="result-row">
-                        <span>錐斗段高度：</span>
-                        <strong><span id="res-cone-h"></span> m</strong>
-                    </div>
-                    <div class="result-row">
-                        <span>出口直徑換算：</span>
-                        <strong><span id="res-outlet-m"></span> m</strong>
-                    </div>
-                    <div class="result-row" style="background:#f8f9fa; padding:8px; border-radius:6px; margin-top:5px;">
-                        <span style="font-weight:700;">📍 桶體總高度 (不含腳架)：</span>
-                        <strong class="highlight-val" style="color:#2c3e50 !important;"><span id="res-total-h"></span> m</strong>
-                    </div>
+    <div id="tab-agg" class="tab-content">
+        <div class="main-grid">
+            <div class="input-panel">
+                <div class="group-head" style="margin-top:0;">1. 共用結構 (田字型)</div>
+                <div class="dual">
+                    <div><label>總長 L (m)</label><input type="number" id="a_L_tot" value="6.0" oninput="runAgg()"></div>
+                    <div><label>總寬 W (m)</label><input type="number" id="a_W_tot" value="6.0" oninput="runAgg()"></div>
+                </div>
+                <div class="dual" style="margin-top:10px;">
+                    <div><label>直身高度 (m)</label><input type="number" id="a_H_box" value="2.0" oninput="runAgg()"></div>
+                    <div><label>預留高 (m)</label><input type="number" id="a_fb" value="0.3" oninput="runAgg()"></div>
+                </div>
+
+                <div class="group-head" style="color:#d35400; border-color:#d35400;">2. 砂倉 (左側)</div>
+                <div class="dual">
+                    <div><label>錐斗垂高 (m)</label><input type="number" id="a_h_sand" value="2.5" oninput="runAgg()"></div>
+                    <div><label>比重</label><input type="number" id="a_rho_sand" value="1.6" oninput="runAgg()"></div>
+                </div>
+                <label style="margin-top:5px;">出口 (mm)</label>
+                <div class="dual">
+                    <input type="number" id="a_out_Ls" value="800" placeholder="L" oninput="runAgg()">
+                    <input type="number" id="a_out_Ws" value="600" placeholder="W" oninput="runAgg()">
+                </div>
+
+                <div class="group-head" style="color:#555; border-color:#555;">3. 石倉 (右側)</div>
+                <div class="dual">
+                    <div><label>錐斗垂高 (m)</label><input type="number" id="a_h_stone" value="1.8" oninput="runAgg()"></div>
+                    <div><label>比重</label><input type="number" id="a_rho_stone" value="1.55" oninput="runAgg()"></div>
+                </div>
+                <label style="margin-top:5px;">出口 (mm)</label>
+                <div class="dual">
+                    <input type="number" id="a_out_Lst" value="800" placeholder="L" oninput="runAgg()">
+                    <input type="number" id="a_out_Wst" value="600" placeholder="W" oninput="runAgg()">
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header" style="background: linear-gradient(135deg, #0984e3, #74b9ff);">📊 容量驗證</div>
-                <div class="card-body">
-                    <div class="result-row">
-                        <span>需求總容積：</span>
-                        <span><span id="res-vol-req"></span> m³</span>
-                    </div>
-                    <div class="result-row">
-                        <span>設計實際總容積：</span>
-                        <strong><span id="res-vol-actual"></span> m³</strong>
-                    </div>
-                    <div class="result-row">
-                        <span>預估最大裝載重量：</span>
-                        <strong style="color:#0984e3"><span id="res-weight-max"></span> T</strong>
-                    </div>
-                    <div class="result-row">
-                        <span>狀態評估：</span>
-                        <strong id="res-status"></strong>
-                    </div>
+            <div class="result-panel">
+                <div class="info-card">
+                    <div class="res-row"><span>單倉上口尺寸：</span><span class="res-val" id="res_a_top">--</span></div>
+                    <div class="res-row" style="color:#d35400"><span>砂倉單顆容積：</span><span class="res-val" id="res_a_vol_s">--</span></div>
+                    <div class="res-row" style="color:#555"><span>石倉單顆容積：</span><span class="res-val" id="res_a_vol_st">--</span></div>
                 </div>
-            </div>
-
-            <div class="diagram-container">
-                <h4 style="margin-top:0; color:#7f8c8d;">設計結構示意圖 (自動比例)</h4>
-                <svg id="siloSvg" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
-                          <path d="M0,0 L0,6 L9,3 z" fill="#7f8c8d" />
-                        </marker>
-                    </defs>
-                </svg>
+                <div class="total-box bg-agg">
+                    <div style="font-size:0.9em; opacity:0.8;">總重量 (2砂+2石)</div>
+                    <div class="total-val"><span id="res_a_weight">0</span> T</div>
+                    <div style="font-size:0.8em; margin-top:5px;">總容積: <span id="res_a_vol">0</span> m³</div>
+                </div>
+                <svg id="svgAgg" viewBox="0 0 500 500"></svg>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    function calculateSilo() {
-        // --- 1. 獲取輸入與驗證 ---
-        let getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
-        let W = getVal('weight');
-        let rho = getVal('density');
-        let D = getVal('diameter');
-        let plateH = getVal('plate_h');
-        let angleDeg = getVal('angle');
-        let freeboard = getVal('freeboard');
+    // --- 1. 分頁切換功能 ---
+    function switchTab(tabName) {
+        // 隱藏所有內容
+        document.getElementById('tab-cement').className = 'tab-content';
+        document.getElementById('tab-agg').className = 'tab-content';
         
-        // 處理出口單位轉換
-        let outletInput = getVal('outlet');
-        let outletUnit = document.getElementById('outlet_unit').value;
-        let d_out = 0;
+        // 重置按鈕樣式
+        document.getElementById('btn-cement').className = 'tab-btn';
+        document.getElementById('btn-agg').className = 'tab-btn';
 
-        if (outletUnit === 'inch') {
-            d_out = outletInput * 0.0254; // 英吋轉公尺
+        // 顯示選中項目
+        if (tabName === 'cement') {
+            document.getElementById('tab-cement').className = 'tab-content active';
+            document.getElementById('btn-cement').className = 'tab-btn active';
+            runCement(); // 強制重算
         } else {
-            d_out = outletInput; // 已經是公尺
+            document.getElementById('tab-agg').className = 'tab-content active';
+            document.getElementById('btn-agg').className = 'tab-btn active';
+            runAgg(); // 強制重算
         }
-
-        if(W<=0 || rho<=0 || D<=0 || plateH<=0 || angleDeg<=0 || d_out<=0) {
-            alert("請輸入大於 0 的有效數值！");
-            return;
-        }
-
-        // --- 2. 幾何運算核心 ---
-        let R = D / 2;
-        let r = d_out / 2;
-        let angleRad = angleDeg * (Math.PI / 180);
-        let V_needed = W / rho;
-
-        // 錐斗計算
-        let h_cone = (R - r) * Math.tan(angleRad);
-        let V_cone = (Math.PI * h_cone / 3) * (Math.pow(R, 2) + R * r + Math.pow(r, 2));
-
-        // 直身計算
-        let V_cyl_needed = V_needed - V_cone;
-        let area_cyl = Math.PI * Math.pow(R, 2);
-        let h_cyl_theoretical = V_cyl_needed > 0 ? V_cyl_needed / area_cyl : 0;
-
-        // --- 3. DFM層數優化 ---
-        let h_cyl_target = h_cyl_theoretical + freeboard;
-        let layers = Math.ceil(h_cyl_target / plateH);
-        if (layers === 0 && h_cyl_target > 0) layers = 1; 
-        let h_cyl_actual = layers * plateH;
-        
-        // 反推容量
-        let V_cyl_actual = area_cyl * h_cyl_actual;
-        let V_total_actual = V_cyl_actual + V_cone;
-        let W_max_actual = V_total_actual * rho;
-        let h_total = h_cyl_actual + h_cone;
-
-        // --- 4. 更新數據介面 ---
-        document.getElementById('result').style.display = 'block';
-        
-        let setTxt = (id, val, fixed=2) => document.getElementById(id).innerText = val.toFixed(fixed);
-        
-        setTxt('res-layers', layers, 0);
-        setTxt('res-plate-h', plateH);
-        setTxt('res-cyl-h-actual', h_cyl_actual);
-        setTxt('res-cone-h', h_cone);
-        setTxt('res-total-h', h_total);
-        setTxt('res-vol-req', V_needed);
-        setTxt('res-vol-actual', V_total_actual);
-        setTxt('res-weight-max', W_max_actual, 1);
-        setTxt('res-outlet-m', d_out, 3); // 顯示換算後的公尺數
-
-        let statusElem = document.getElementById('res-status');
-        if(V_total_actual >= V_needed - 0.1) { 
-            statusElem.innerHTML = "✅ 合格 (容量充足)";
-            statusElem.style.color = "#27ae60";
-        } else {
-            statusElem.innerHTML = "⚠️ 警告：容量不足";
-            statusElem.style.color = "#c0392b";
-        }
-
-        // --- 5. 繪製 SVG 工程圖 ---
-        drawSvgDiagram(D, d_out, h_cyl_actual, h_cone, layers, h_total);
     }
 
-    function drawSvgDiagram(D, d_out, h_cyl, h_cone, layers, h_total) {
-        const svg = document.getElementById('siloSvg');
-        svg.innerHTML = svg.querySelector('defs').outerHTML; // 重置畫布
+    // --- 2. 獲取數值工具 ---
+    function val(id) {
+        let el = document.getElementById(id);
+        if(!el) return 0;
+        let v = parseFloat(el.value);
+        return isNaN(v) ? 0 : v;
+    }
 
-        const svgWidth = 400;
-        const svgHeight = 500;
-        const marginX = 80; 
-        const marginY = 40; 
-        const centerX = svgWidth / 2;
-        const availableHeight = svgHeight - (marginY * 2);
+    // --- 3. 水泥桶計算 ---
+    function runCement() {
+        let W = val('c_weight');
+        let rho = val('c_rho') || 1;
+        let D = val('c_dia');
+        let plateH = val('c_plate_h');
+        let ang = val('c_angle');
+        let out_inch = val('c_out_inch');
+        let fb = val('c_fb');
 
-        let ppm = availableHeight / h_total;
+        let d_out = out_inch * 0.0254;
+        let R = D/2;
+        let r = d_out/2;
+
+        // 計算
+        let h_cone = (R - r) * Math.tan(ang * Math.PI/180);
+        if(h_cone < 0) h_cone = 0;
+        let V_cone = (Math.PI * h_cone / 3) * (R*R + R*r + r*r);
         
-        let maxAllowedWidthStr = (svgWidth - marginX*2) * 0.8;
-        if (D * ppm > maxAllowedWidthStr) {
-             ppm = maxAllowedWidthStr / D;
+        let V_req = W / rho;
+        let V_cyl_needed = V_req - V_cone;
+        let Area = Math.PI * R*R;
+        let h_cyl_theo = V_cyl_needed > 0 ? V_cyl_needed / Area : 0;
+        
+        let layers = Math.ceil((h_cyl_theo + fb) / plateH);
+        if(layers === 0 && h_cyl_theo > 0) layers = 1;
+        let h_cyl_act = layers * plateH;
+        
+        let V_total = (Area * h_cyl_act) + V_cone;
+        let W_total = V_total * rho;
+        let H_total = h_cyl_act + h_cone;
+
+        // 更新文字
+        document.getElementById('res_c_layers').innerText = layers;
+        document.getElementById('res_c_cyl').innerText = h_cyl_act.toFixed(2) + " m";
+        document.getElementById('res_c_cone').innerText = h_cone.toFixed(2) + " m";
+        document.getElementById('res_c_total').innerText = H_total.toFixed(2) + " m";
+        document.getElementById('res_c_max').innerText = W_total.toFixed(1);
+
+        drawCement(D, h_cyl_act, h_cone, d_out, layers);
+    }
+
+    function drawCement(D, h1, h2, d_out, layers) {
+        let svg = document.getElementById('svgCement');
+        // 重置 SVG (含箭頭定義)
+        svg.innerHTML = `<defs><marker id="ar" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#333"/></marker></defs>`;
+        
+        let w = 400, h = 400, pad = 50;
+        let totalH = h1 + h2;
+        if(totalH === 0) totalH = 1;
+        
+        let ppm = (h - pad*2) / totalH;
+        if(D * ppm > (w - pad*2)) ppm = (w - pad*2) / D;
+
+        let W_px = D * ppm;
+        let H1_px = h1 * ppm;
+        let H2_px = h2 * ppm;
+        let out_px = Math.max(d_out * ppm, 5);
+        let cx = w/2;
+        let x = cx - W_px/2;
+        let y = pad;
+
+        // 畫直身
+        addRect(svg, x, y, W_px, H1_px, "#dbeafe", "#2980b9");
+        
+        // 畫層線
+        if(layers > 0 && H1_px > 0) {
+            let step = H1_px / layers;
+            for(let i=1; i<layers; i++) {
+                addLine(svg, x, y + i*step, x + W_px, y + i*step, "#2980b9", "4,2");
+            }
         }
-
-        let cylW_px = D * ppm;
-        let cylH_px = h_cyl * ppm;
-        let coneH_px = h_cone * ppm;
-        let outletW_px = d_out * ppm;
-        if(outletW_px < 2) outletW_px = 2; // 防止出口太小畫不出來
-        let layerH_px = cylH_px / layers;
-
-        let startY = marginY;
-        let currentY = startY;
-
-        // 畫圓柱
-        let cylX = centerX - (cylW_px / 2);
-        let rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        rect.setAttribute("x", cylX);
-        rect.setAttribute("y", currentY);
-        rect.setAttribute("width", cylW_px);
-        rect.setAttribute("height", cylH_px);
-        rect.setAttribute("class", "svg-silo-body");
-        svg.appendChild(rect);
-
-        // 畫分隔線
-        for(let i=1; i<layers; i++) {
-            let lineY = currentY + (i * layerH_px);
-            let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", cylX);
-            line.setAttribute("y1", lineY);
-            line.setAttribute("x2", cylX + cylW_px);
-            line.setAttribute("y2", lineY);
-            line.setAttribute("class", "svg-layer-line");
-            svg.appendChild(line);
-        }
-        currentY += cylH_px;
 
         // 畫錐斗
-        let coneBottomY = currentY + coneH_px;
-        let polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-        let points = `${cylX},${currentY} ${cylX + cylW_px},${currentY} ${centerX + outletW_px/2},${coneBottomY} ${centerX - outletW_px/2},${coneBottomY}`;
-        polygon.setAttribute("points", points);
-        polygon.setAttribute("class", "svg-silo-cone");
-        svg.appendChild(polygon);
+        let y2 = y + H1_px;
+        let pts = `${x},${y2} ${x+W_px},${y2} ${cx+out_px/2},${y2+H2_px} ${cx-out_px/2},${y2+H2_px}`;
+        addPoly(svg, pts, "#bfdbfe", "#2980b9");
 
-        // --- 標註 ---
-        function drawDim(x1, y1, x2, y2, textStr, textX, textY, anchor="middle") {
-            let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", x1); line.setAttribute("y1", y1);
-            line.setAttribute("x2", x2); line.setAttribute("y2", y2);
-            line.setAttribute("class", "svg-dim-line");
-            line.setAttribute("marker-start", "url(#arrow)");
-            line.setAttribute("marker-end", "url(#arrow)");
-            svg.appendChild(line);
-            
-            let text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            text.setAttribute("x", textX);
-            text.setAttribute("y", textY);
-            text.setAttribute("text-anchor", anchor);
-            text.setAttribute("class", "svg-dim-text");
-            text.textContent = textStr;
-            svg.appendChild(text);
-        }
-
-        function createExtLine(x1, y1, x2, y2) {
-            let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", x1); line.setAttribute("y1", y1);
-            line.setAttribute("x2", x2); line.setAttribute("y2", y2);
-            line.setAttribute("stroke", "#bdc3c7");
-            line.setAttribute("stroke-width", "0.5");
-            return line;
-        }
-
-        // 直徑
-        drawDim(cylX, startY - 15, cylX + cylW_px, startY - 15, `D: ${D.toFixed(2)}m`, centerX, startY - 25);
-        
-        // 總高
-        let dimX_right = cylX + cylW_px + 40;
-        drawDim(dimX_right, startY, dimX_right, coneBottomY, `H: ${h_total.toFixed(2)}m`, dimX_right + 5, startY + (coneBottomY-startY)/2, "start");
-        svg.appendChild(createExtLine(cylX + cylW_px, startY, dimX_right, startY));
-        svg.appendChild(createExtLine(centerX + outletW_px/2, coneBottomY, dimX_right, coneBottomY));
-
-        // 錐斗高
-        let dimX_left = cylX - 40;
-        drawDim(dimX_left, startY + cylH_px, dimX_left, coneBottomY, `h: ${h_cone.toFixed(2)}m`, dimX_left - 5, startY + cylH_px + coneH_px/2, "end");
-        svg.appendChild(createExtLine(dimX_left, startY + cylH_px, cylX, startY + cylH_px));
-        svg.appendChild(createExtLine(dimX_left, coneBottomY, centerX - outletW_px/2, coneBottomY));
-
-        // 出口標註 (顯示公尺)
-        drawDim(centerX - outletW_px/2, coneBottomY + 15, centerX + outletW_px/2, coneBottomY + 15, `d: ${d_out.toFixed(3)}m`, centerX, coneBottomY + 30);
+        // 標註
+        addText(svg, cx, y-15, `D=${D}m`, "#333");
+        addText(svg, x+W_px+5, y+H1_px/2, `H=${h1.toFixed(2)}`, "#2980b9", "start");
+        addText(svg, x+W_px+5, y2+H2_px/2, `h=${h2.toFixed(2)}`, "#2980b9", "start");
     }
+
+    // --- 4. 骨材庫計算 ---
+    function runAgg() {
+        let L = val('a_L_tot');
+        let W = val('a_W_tot');
+        let H_box = val('a_H_box');
+        let fb = val('a_fb');
+
+        // Sand
+        let h_s = val('a_h_sand');
+        let rho_s = val('a_rho_sand');
+        let out_Ls = val('a_out_Ls')/1000;
+        let out_Ws = val('a_out_Ws')/1000;
+
+        // Stone
+        let h_st = val('a_h_stone');
+        let rho_st = val('a_rho_stone');
+        let out_Lst = val('a_out_Lst')/1000;
+        let out_Wst = val('a_out_Wst')/1000;
+
+        // 邏輯
+        let L_cell = L/2, W_cell = W/2;
+        let A_top = L_cell * W_cell;
+        let H_eff = Math.max(0, H_box - fb);
+        let V_box = A_top * H_eff;
+
+        // 砂
+        let A_bot_s = out_Ls * out_Ws;
+        let V_cone_s = (h_s/3)*(A_top + A_bot_s + Math.sqrt(A_top*A_bot_s));
+        let V_s_one = V_box + V_cone_s;
+
+        // 石
+        let A_bot_st = out_Lst * out_Wst;
+        let V_cone_st = (h_st/3)*(A_top + A_bot_st + Math.sqrt(A_top*A_bot_st));
+        let V_st_one = V_box + V_cone_st;
+
+        let V_tot = (V_s_one * 2) + (V_st_one * 2);
+        let W_tot = (V_s_one * rho_s * 2) + (V_st_one * rho_st * 2);
+
+        // 更新
+        document.getElementById('res_a_top').innerText = `${L_cell.toFixed(2)} x ${W_cell.toFixed(2)} m`;
+        document.getElementById('res_a_vol_s').innerText = V_s_one.toFixed(2) + " m³";
+        document.getElementById('res_a_vol_st').innerText = V_st_one.toFixed(2) + " m³";
+        document.getElementById('res_a_weight').innerText = W_tot.toFixed(1);
+        document.getElementById('res_a_vol').innerText = V_tot.toFixed(1);
+
+        drawAgg(L, H_box, h_s, h_st, out_Ls, out_Lst);
+    }
+
+    function drawAgg(L, H_box, h_s, h_st, w_s, w_st) {
+        let svg = document.getElementById('svgAgg');
+        svg.innerHTML = `<defs><marker id="ar" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#333"/></marker></defs>`;
+
+        let w = 500, h = 400, pad = 50;
+        let maxH = H_box + Math.max(h_s, h_st) + 1;
+        if(maxH < 1) maxH = 1;
+        
+        let ppm = (h - pad*2) / maxH;
+        if(L * ppm > (w - pad*2)) ppm = (w - pad*2) / L;
+
+        let W_px = (L/2) * ppm;
+        let H_box_px = H_box * ppm;
+        let H_s_px = h_s * ppm;
+        let H_st_px = h_st * ppm;
+        let ws_px = Math.max(w_s*ppm, 5);
+        let wst_px = Math.max(w_st*ppm, 5);
+
+        let x = (w - W_px*2)/2;
+        let y = pad;
+
+        // 上方方箱
+        addRect(svg, x, y, W_px, H_box_px, "#fff3e0", "#333"); // 砂
+        addRect(svg, x+W_px, y, W_px, H_box_px, "#f5f5f5", "#333"); // 石
+        addLine(svg, x+W_px, y, x+W_px, y+H_box_px, "#999", "4,4");
+
+        // 下方錐斗
+        let y2 = y + H_box_px;
+        // 左砂
+        let cx_s = x + W_px/2;
+        let pts_s = `${x},${y2} ${x+W_px},${y2} ${cx_s+ws_px/2},${y2+H_s_px} ${cx_s-ws_px/2},${y2+H_s_px}`;
+        addPoly(svg, pts_s, "none", "#d35400");
+        
+        // 右石
+        let cx_st = x + W_px + W_px/2;
+        let pts_st = `${x+W_px},${y2} ${x+W_px*2},${y2} ${cx_st+wst_px/2},${y2+H_st_px} ${cx_st-wst_px/2},${y2+H_st_px}`;
+        addPoly(svg, pts_st, "none", "#7f8c8d");
+
+        // 標註
+        addText(svg, cx_s, y+H_box_px/2, "砂", "#d35400");
+        addText(svg, cx_st, y+H_box_px/2, "石", "#555");
+        addText(svg, cx_s, y2+H_s_px+20, `h=${h_s}`, "#d35400");
+        addText(svg, cx_st, y2+H_st_px+20, `h=${h_st}`, "#555");
+        
+        // 箭頭
+        let diff = Math.abs(h_s - h_st);
+        let mx = x + W_px*2 + 20;
+        let my1 = y2 + H_st_px;
+        let my2 = y2 + H_s_px;
+        addLine(svg, mx, my1, mx, my2, "#c0392b", null, true);
+        addText(svg, mx+15, (my1+my2)/2, `Δ ${diff.toFixed(2)}`, "#c0392b", "start");
+    }
+
+    // --- SVG Helpers ---
+    function addRect(svg, x, y, w, h, fill, stroke) {
+        let el = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        el.setAttribute("x", x); el.setAttribute("y", y);
+        el.setAttribute("width", w); el.setAttribute("height", h);
+        el.setAttribute("fill", fill); el.setAttribute("stroke", stroke);
+        el.setAttribute("stroke-width", 2);
+        svg.appendChild(el);
+    }
+    function addLine(svg, x1, y1, x2, y2, color, dash, marker) {
+        let el = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        el.setAttribute("x1", x1); el.setAttribute("y1", y1);
+        el.setAttribute("x2", x2); el.setAttribute("y2", y2);
+        el.setAttribute("stroke", color); el.setAttribute("stroke-width", 2);
+        if(dash) el.setAttribute("stroke-dasharray", dash);
+        if(marker) {
+            el.setAttribute("marker-start", "url(#ar)");
+            el.setAttribute("marker-end", "url(#ar)");
+        }
+        svg.appendChild(el);
+    }
+    function addPoly(svg, pts, fill, stroke) {
+        let el = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        el.setAttribute("points", pts); el.setAttribute("fill", fill);
+        el.setAttribute("stroke", stroke); el.setAttribute("stroke-width", 2);
+        svg.appendChild(el);
+    }
+    function addText(svg, x, y, txt, color, anchor="middle") {
+        let el = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        el.setAttribute("x", x); el.setAttribute("y", y);
+        el.setAttribute("fill", color); el.setAttribute("text-anchor", anchor);
+        el.setAttribute("font-family", "monospace"); el.setAttribute("font-weight", "bold");
+        el.textContent = txt;
+        svg.appendChild(el);
+    }
+
+    // 初始化
+    runCement();
 </script>
 
 </body>
