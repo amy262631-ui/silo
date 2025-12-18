@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>silo&骨材庫 容量設計 </title>
+    <title>混凝土廠全能容器設計 (單位修正版)</title>
     <style>
-        body { font-family: "Microsoft JhengHei", Arial, sans-serif; background: #f4f7f6; padding: 20px; color: #333; }
+        body { font-family: "Microsoft JhengHei", Arial, sans-serif; background: #f4f7f6; padding: 20px; color: #333; margin: 0; }
         .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
         .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 20px; font-size: 0.9em; }
@@ -21,8 +21,8 @@
         .tab-btn.active { background: #fff; color: #2c3e50; border-bottom: 4px solid #3498db; }
 
         /* 內容區塊 */
-        .tab-content { display: none; } /* 預設隱藏 */
-        .tab-content.active { display: block; } /* 啟用時顯示 */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
         .main-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
         @media (max-width: 800px) { .main-grid { grid-template-columns: 1fr; } }
@@ -33,8 +33,8 @@
         
         .input-row { margin-bottom: 10px; }
         label { display: block; font-size: 0.9em; color: #555; font-weight: bold; margin-bottom: 4px; }
-        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: monospace; font-size: 15px; }
-        input:focus { border-color: #3498db; outline: none; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: monospace; font-size: 15px; }
+        input:focus, select:focus { border-color: #3498db; outline: none; }
         
         .dual { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
@@ -49,14 +49,15 @@
         .bg-agg { background: #34495e; }
         .total-val { font-size: 1.5em; font-weight: bold; color: #f1c40f; }
 
-        svg { width: 100%; height: 400px; background: white; border: 1px solid #ccc; border-radius: 8px; margin-top: 10px; }
+        svg { width: 100%; height: 500px; background: white; border: 1px solid #ccc; border-radius: 8px; margin-top: 10px; }
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.8em; color: white; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🏗️ 混凝土廠全能容器設計 (最終修復版)</h2>
-    <div class="subtitle">水泥桶 (圓形) | 骨材庫 (田字型)</div>
+    <h2>🏗️ 混凝土廠全能容器設計 (單位修正版)</h2>
+    <div class="subtitle">水泥桶 (側邊標註) | 骨材庫 (即時連動)</div>
 
     <div class="tabs">
         <button id="btn-cement" class="tab-btn active" onclick="switchTab('cement')">🟢 水泥桶 (Silo)</button>
@@ -76,7 +77,17 @@
                 <div class="input-row"><label>單層板高 (m)</label><input type="number" id="c_plate_h" value="1.5" oninput="runCement()"></div>
                 <div class="dual">
                     <div><label>錐斗斜度 (°)</label><input type="number" id="c_angle" value="60" oninput="runCement()"></div>
-                    <div><label>出口 (inch)</label><input type="number" id="c_out_inch" value="12" oninput="runCement()"></div>
+                    
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:end; margin-bottom:4px;">
+                            <label style="margin:0;">出口尺寸</label>
+                            <select id="c_out_unit" onchange="runCement()" style="width: auto; padding: 1px; font-size: 12px; height: 20px;">
+                                <option value="inch" selected>英制 (in)</option>
+                                <option value="m">公尺 (m)</option>
+                            </select>
+                        </div>
+                        <input type="number" id="c_out_val" value="12" oninput="runCement()">
+                    </div>
                 </div>
             </div>
 
@@ -101,40 +112,41 @@
             <div class="input-panel">
                 <div class="group-head" style="margin-top:0;">1. 共用結構 (田字型)</div>
                 <div class="dual">
-                    <div><label>總長 L (m)</label><input type="number" id="a_L_tot" value="6.0" oninput="runAgg()"></div>
-                    <div><label>總寬 W (m)</label><input type="number" id="a_W_tot" value="6.0" oninput="runAgg()"></div>
+                    <div><label>總長 L (m)</label><input type="number" id="a_L_tot" value="12" oninput="runAgg()"></div>
+                    <div><label>總寬 W (m)</label><input type="number" id="a_W_tot" value="12" oninput="runAgg()"></div>
                 </div>
-                <div class="dual" style="margin-top:10px;">
-                    <div><label>直身高度 (m)</label><input type="number" id="a_H_box" value="2.0" oninput="runAgg()"></div>
-                    <div><label>預留高 (m)</label><input type="number" id="a_fb" value="0.3" oninput="runAgg()"></div>
+                <div class="input-row" style="margin-top:10px;">
+                    <label>直身高度 (m)</label><input type="number" id="a_H_box" value="4.8" oninput="runAgg()">
                 </div>
 
-                <div class="group-head" style="color:#d35400; border-color:#d35400;">2. 砂倉 (左側)</div>
+                <div class="group-head" style="color:#d35400; border-color:#d35400;">
+                    <span>2. 砂倉 (左側)</span><span class="badge" style="background:#d35400">左側</span>
+                </div>
                 <div class="dual">
-                    <div><label>錐斗垂高 (m)</label><input type="number" id="a_h_sand" value="2.5" oninput="runAgg()"></div>
+                    <div><label>錐斗垂高 (m)</label><input type="number" id="a_h_sand" value="4.927" oninput="runAgg()"></div>
                     <div><label>比重</label><input type="number" id="a_rho_sand" value="1.6" oninput="runAgg()"></div>
                 </div>
-                <label style="margin-top:5px;">出口 (mm)</label>
+                <label style="margin-top:5px;">出口 (m)</label>
                 <div class="dual">
-                    <input type="number" id="a_out_Ls" value="800" placeholder="L" oninput="runAgg()">
-                    <input type="number" id="a_out_Ws" value="600" placeholder="W" oninput="runAgg()">
+                    <input type="number" id="a_out_Ls" value="2.3" placeholder="L" oninput="runAgg()">
+                    <input type="number" id="a_out_Ws" value="1.7" placeholder="W" oninput="runAgg()">
                 </div>
 
                 <div class="group-head" style="color:#555; border-color:#555;">3. 石倉 (右側)</div>
                 <div class="dual">
-                    <div><label>錐斗垂高 (m)</label><input type="number" id="a_h_stone" value="1.8" oninput="runAgg()"></div>
+                    <div><label>錐斗垂高 (m)</label><input type="number" id="a_h_stone" value="4.3" oninput="runAgg()"></div>
                     <div><label>比重</label><input type="number" id="a_rho_stone" value="1.55" oninput="runAgg()"></div>
                 </div>
-                <label style="margin-top:5px;">出口 (mm)</label>
+                <label style="margin-top:5px;">出口 (m)</label>
                 <div class="dual">
-                    <input type="number" id="a_out_Lst" value="800" placeholder="L" oninput="runAgg()">
-                    <input type="number" id="a_out_Wst" value="600" placeholder="W" oninput="runAgg()">
+                    <input type="number" id="a_out_Lst" value="2.3" placeholder="L" oninput="runAgg()">
+                    <input type="number" id="a_out_Wst" value="1.7" placeholder="W" oninput="runAgg()">
                 </div>
             </div>
 
             <div class="result-panel">
                 <div class="info-card">
-                    <div class="res-row"><span>單倉上口尺寸：</span><span class="res-val" id="res_a_top">--</span></div>
+                    <div class="res-row"><span>單倉尺寸(Top)：</span><span class="res-val" id="res_a_top">--</span></div>
                     <div class="res-row" style="color:#d35400"><span>砂倉單顆容積：</span><span class="res-val" id="res_a_vol_s">--</span></div>
                     <div class="res-row" style="color:#555"><span>石倉單顆容積：</span><span class="res-val" id="res_a_vol_st">--</span></div>
                 </div>
@@ -150,34 +162,28 @@
 </div>
 
 <script>
-    // --- 1. 分頁切換功能 ---
+    // --- 1. 分頁切換 ---
     function switchTab(tabName) {
-        // 隱藏所有內容
         document.getElementById('tab-cement').className = 'tab-content';
         document.getElementById('tab-agg').className = 'tab-content';
-        
-        // 重置按鈕樣式
         document.getElementById('btn-cement').className = 'tab-btn';
         document.getElementById('btn-agg').className = 'tab-btn';
 
-        // 顯示選中項目
         if (tabName === 'cement') {
             document.getElementById('tab-cement').className = 'tab-content active';
             document.getElementById('btn-cement').className = 'tab-btn active';
-            runCement(); // 強制重算
+            runCement(); 
         } else {
             document.getElementById('tab-agg').className = 'tab-content active';
             document.getElementById('btn-agg').className = 'tab-btn active';
-            runAgg(); // 強制重算
+            runAgg(); 
         }
     }
 
-    // --- 2. 獲取數值工具 ---
+    // --- 2. 工具 ---
     function val(id) {
         let el = document.getElementById(id);
-        if(!el) return 0;
-        let v = parseFloat(el.value);
-        return isNaN(v) ? 0 : v;
+        return el ? (parseFloat(el.value) || 0) : 0;
     }
 
     // --- 3. 水泥桶計算 ---
@@ -187,14 +193,17 @@
         let D = val('c_dia');
         let plateH = val('c_plate_h');
         let ang = val('c_angle');
-        let out_inch = val('c_out_inch');
+        
+        // 修改處：取得單位並進行換算
+        let out_val = val('c_out_val');
+        let out_unit = document.getElementById('c_out_unit').value;
         let fb = val('c_fb');
 
-        let d_out = out_inch * 0.0254;
-        let R = D/2;
-        let r = d_out/2;
+        // 如果選英制則乘 0.0254，如果選 m 則不變
+        let d_out = (out_unit === 'inch') ? (out_val * 0.0254) : out_val;
 
-        // 計算
+        let R = D/2, r = d_out/2;
+
         let h_cone = (R - r) * Math.tan(ang * Math.PI/180);
         if(h_cone < 0) h_cone = 0;
         let V_cone = (Math.PI * h_cone / 3) * (R*R + R*r + r*r);
@@ -212,7 +221,6 @@
         let W_total = V_total * rho;
         let H_total = h_cyl_act + h_cone;
 
-        // 更新文字
         document.getElementById('res_c_layers').innerText = layers;
         document.getElementById('res_c_cyl').innerText = h_cyl_act.toFixed(2) + " m";
         document.getElementById('res_c_cone').innerText = h_cone.toFixed(2) + " m";
@@ -224,44 +232,58 @@
 
     function drawCement(D, h1, h2, d_out, layers) {
         let svg = document.getElementById('svgCement');
-        // 重置 SVG (含箭頭定義)
-        svg.innerHTML = `<defs><marker id="ar" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#333"/></marker></defs>`;
+        svg.innerHTML = `
+        <defs>
+            <marker id="arrS" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#333"/></marker>
+            <marker id="arrE" markerWidth="8" markerHeight="8" refX="0" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#333"/></marker>
+        </defs>`;
         
-        let w = 400, h = 400, pad = 50;
-        let totalH = h1 + h2;
-        if(totalH === 0) totalH = 1;
+        let w = 400, h = 500, pad = 60;
+        let totalH = h1 + h2; if(totalH === 0) totalH = 1;
         
-        let ppm = (h - pad*2) / totalH;
+        // 比例計算
+        let ppm = (h - pad*2.5) / totalH; 
         if(D * ppm > (w - pad*2)) ppm = (w - pad*2) / D;
 
         let W_px = D * ppm;
         let H1_px = h1 * ppm;
         let H2_px = h2 * ppm;
-        let out_px = Math.max(d_out * ppm, 5);
+        let out_px = Math.max(d_out * ppm, 4); 
+        
         let cx = w/2;
         let x = cx - W_px/2;
         let y = pad;
 
-        // 畫直身
-        addRect(svg, x, y, W_px, H1_px, "#dbeafe", "#2980b9");
-        
-        // 畫層線
+        // 1. 直身
+        addRect(svg, x, y, W_px, H1_px, "none", "#333");
+
+        // 2. 層線
         if(layers > 0 && H1_px > 0) {
             let step = H1_px / layers;
             for(let i=1; i<layers; i++) {
-                addLine(svg, x, y + i*step, x + W_px, y + i*step, "#2980b9", "4,2");
+                addLine(svg, x, y + i*step, x + W_px, y + i*step, "#ccc", "4,2");
             }
         }
 
-        // 畫錐斗
+        // 3. 錐斗
         let y2 = y + H1_px;
-        let pts = `${x},${y2} ${x+W_px},${y2} ${cx+out_px/2},${y2+H2_px} ${cx-out_px/2},${y2+H2_px}`;
-        addPoly(svg, pts, "#bfdbfe", "#2980b9");
+        let y3 = y2 + H2_px;
+        let outL = cx - out_px/2;
+        let outR = cx + out_px/2;
+        let pts = `${x},${y2} ${x+W_px},${y2} ${outR},${y3} ${outL},${y3}`;
+        addPoly(svg, pts, "none", "#333");
 
-        // 標註
-        addText(svg, cx, y-15, `D=${D}m`, "#333");
-        addText(svg, x+W_px+5, y+H1_px/2, `H=${h1.toFixed(2)}`, "#2980b9", "start");
-        addText(svg, x+W_px+5, y2+H2_px/2, `h=${h2.toFixed(2)}`, "#2980b9", "start");
+        // 4. 尺寸標註
+        addDimH(svg, x, y-15, W_px, `D=${D}m`);
+        addDimV(svg, x+W_px+15, y, H1_px, `H=${h1.toFixed(2)}m`);
+        addDimV(svg, x+W_px+15, y2, H2_px, `h=${h2.toFixed(2)}m`);
+
+        // 5. 出口標註
+        addLine(svg, outL, y3, outL, y3+25, "#999");
+        addLine(svg, outR, y3, outR, y3+25, "#999");
+        let dimY = y3 + 20;
+        addLine(svg, outL, dimY, outR, dimY, "#555");
+        addText(svg, outR + 5, dimY + 4, `d=${d_out.toFixed(2)}`, "#333", "start");
     }
 
     // --- 4. 骨材庫計算 ---
@@ -269,32 +291,29 @@
         let L = val('a_L_tot');
         let W = val('a_W_tot');
         let H_box = val('a_H_box');
-        let fb = val('a_fb');
-
-        // Sand
+        
         let h_s = val('a_h_sand');
         let rho_s = val('a_rho_sand');
-        let out_Ls = val('a_out_Ls')/1000;
-        let out_Ws = val('a_out_Ws')/1000;
+        
+        // 修改處：輸入單位已由 mm 改為 m，因此移除 /1000
+        let out_Ls = val('a_out_Ls');
+        let out_Ws = val('a_out_Ws');
 
-        // Stone
         let h_st = val('a_h_stone');
         let rho_st = val('a_rho_stone');
-        let out_Lst = val('a_out_Lst')/1000;
-        let out_Wst = val('a_out_Wst')/1000;
+        
+        // 修改處：輸入單位已由 mm 改為 m，因此移除 /1000
+        let out_Lst = val('a_out_Lst');
+        let out_Wst = val('a_out_Wst');
 
-        // 邏輯
         let L_cell = L/2, W_cell = W/2;
         let A_top = L_cell * W_cell;
-        let H_eff = Math.max(0, H_box - fb);
-        let V_box = A_top * H_eff;
+        let V_box = A_top * H_box; 
 
-        // 砂
         let A_bot_s = out_Ls * out_Ws;
         let V_cone_s = (h_s/3)*(A_top + A_bot_s + Math.sqrt(A_top*A_bot_s));
         let V_s_one = V_box + V_cone_s;
 
-        // 石
         let A_bot_st = out_Lst * out_Wst;
         let V_cone_st = (h_st/3)*(A_top + A_bot_st + Math.sqrt(A_top*A_bot_st));
         let V_st_one = V_box + V_cone_st;
@@ -302,7 +321,6 @@
         let V_tot = (V_s_one * 2) + (V_st_one * 2);
         let W_tot = (V_s_one * rho_s * 2) + (V_st_one * rho_st * 2);
 
-        // 更新
         document.getElementById('res_a_top').innerText = `${L_cell.toFixed(2)} x ${W_cell.toFixed(2)} m`;
         document.getElementById('res_a_vol_s').innerText = V_s_one.toFixed(2) + " m³";
         document.getElementById('res_a_vol_st').innerText = V_st_one.toFixed(2) + " m³";
@@ -314,9 +332,15 @@
 
     function drawAgg(L, H_box, h_s, h_st, w_s, w_st) {
         let svg = document.getElementById('svgAgg');
-        svg.innerHTML = `<defs><marker id="ar" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#333"/></marker></defs>`;
+        svg.innerHTML = `
+        <defs>
+            <marker id="arrS" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#c0392b"/></marker>
+            <marker id="arrE" markerWidth="8" markerHeight="8" refX="0" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#c0392b"/></marker>
+            <marker id="blkS" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M6,0 L0,3 L6,6 z" fill="#333"/></marker>
+            <marker id="blkE" markerWidth="6" markerHeight="6" refX="0" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#333"/></marker>
+        </defs>`;
 
-        let w = 500, h = 400, pad = 50;
+        let w = 500, h = 450, pad = 60;
         let maxH = H_box + Math.max(h_s, h_st) + 1;
         if(maxH < 1) maxH = 1;
         
@@ -333,76 +357,89 @@
         let x = (w - W_px*2)/2;
         let y = pad;
 
-        // 上方方箱
-        addRect(svg, x, y, W_px, H_box_px, "#fff3e0", "#333"); // 砂
-        addRect(svg, x+W_px, y, W_px, H_box_px, "#f5f5f5", "#333"); // 石
+        addRect(svg, x, y, W_px, H_box_px, "#fff3e0", "#333");
+        addRect(svg, x+W_px, y, W_px, H_box_px, "#f5f5f5", "#333");
         addLine(svg, x+W_px, y, x+W_px, y+H_box_px, "#999", "4,4");
+        
+        addDimV(svg, x+W_px*2 + 10, y, H_box_px, `H=${H_box}m`);
+        addDimH(svg, x, y-30, W_px*2, `L=${L}m`);
 
-        // 下方錐斗
         let y2 = y + H_box_px;
-        // 左砂
         let cx_s = x + W_px/2;
         let pts_s = `${x},${y2} ${x+W_px},${y2} ${cx_s+ws_px/2},${y2+H_s_px} ${cx_s-ws_px/2},${y2+H_s_px}`;
         addPoly(svg, pts_s, "none", "#d35400");
         
-        // 右石
         let cx_st = x + W_px + W_px/2;
         let pts_st = `${x+W_px},${y2} ${x+W_px*2},${y2} ${cx_st+wst_px/2},${y2+H_st_px} ${cx_st-wst_px/2},${y2+H_st_px}`;
         addPoly(svg, pts_st, "none", "#7f8c8d");
 
-        // 標註
         addText(svg, cx_s, y+H_box_px/2, "砂", "#d35400");
         addText(svg, cx_st, y+H_box_px/2, "石", "#555");
+        
         addText(svg, cx_s, y2+H_s_px+20, `h=${h_s}`, "#d35400");
         addText(svg, cx_st, y2+H_st_px+20, `h=${h_st}`, "#555");
         
-        // 箭頭
         let diff = Math.abs(h_s - h_st);
-        let mx = x + W_px*2 + 20;
+        let mx = x + W_px*2 + 40;
         let my1 = y2 + H_st_px;
         let my2 = y2 + H_s_px;
-        addLine(svg, mx, my1, mx, my2, "#c0392b", null, true);
+        
+        addLine(svg, x+W_px*2, my1, mx, my1, "#ccc", "2,2");
+        addLine(svg, x+W_px, my2, mx, my2, "#ccc", "2,2"); 
+        
+        addLine(svg, mx, my1, mx, my2, "#c0392b", null, "diff");
         addText(svg, mx+15, (my1+my2)/2, `Δ ${diff.toFixed(2)}`, "#c0392b", "start");
     }
 
-    // --- SVG Helpers ---
+    // --- Helpers ---
     function addRect(svg, x, y, w, h, fill, stroke) {
         let el = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        el.setAttribute("x", x); el.setAttribute("y", y);
-        el.setAttribute("width", w); el.setAttribute("height", h);
-        el.setAttribute("fill", fill); el.setAttribute("stroke", stroke);
-        el.setAttribute("stroke-width", 2);
+        el.setAttribute("x", x); el.setAttribute("y", y); el.setAttribute("width", w); el.setAttribute("height", h);
+        el.setAttribute("fill", fill); el.setAttribute("stroke", stroke); el.setAttribute("stroke-width", 2);
         svg.appendChild(el);
     }
-    function addLine(svg, x1, y1, x2, y2, color, dash, marker) {
+    function addLine(svg, x1, y1, x2, y2, color, dash, markerMode) {
         let el = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        el.setAttribute("x1", x1); el.setAttribute("y1", y1);
-        el.setAttribute("x2", x2); el.setAttribute("y2", y2);
-        el.setAttribute("stroke", color); el.setAttribute("stroke-width", 2);
+        el.setAttribute("x1", x1); el.setAttribute("y1", y1); el.setAttribute("x2", x2); el.setAttribute("y2", y2);
+        el.setAttribute("stroke", color); el.setAttribute("stroke-width", 1.5);
         if(dash) el.setAttribute("stroke-dasharray", dash);
-        if(marker) {
-            el.setAttribute("marker-start", "url(#ar)");
-            el.setAttribute("marker-end", "url(#ar)");
+        
+        if(markerMode === "diff") { 
+             el.setAttribute("marker-start", "url(#arrS)");
+             el.setAttribute("marker-end", "url(#arrE)");
+        } else if(markerMode === "dim") { 
+             el.setAttribute("marker-start", "url(#blkS)");
+             el.setAttribute("marker-end", "url(#blkE)");
         }
         svg.appendChild(el);
     }
     function addPoly(svg, pts, fill, stroke) {
         let el = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-        el.setAttribute("points", pts); el.setAttribute("fill", fill);
-        el.setAttribute("stroke", stroke); el.setAttribute("stroke-width", 2);
+        el.setAttribute("points", pts); el.setAttribute("fill", fill); el.setAttribute("stroke", stroke); el.setAttribute("stroke-width", 2);
         svg.appendChild(el);
     }
     function addText(svg, x, y, txt, color, anchor="middle") {
         let el = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        el.setAttribute("x", x); el.setAttribute("y", y);
-        el.setAttribute("fill", color); el.setAttribute("text-anchor", anchor);
-        el.setAttribute("font-family", "monospace"); el.setAttribute("font-weight", "bold");
-        el.textContent = txt;
+        el.setAttribute("x", x); el.setAttribute("y", y); el.setAttribute("fill", color); el.setAttribute("text-anchor", anchor);
+        el.setAttribute("font-family", "monospace"); el.setAttribute("font-weight", "bold"); el.textContent = txt;
         svg.appendChild(el);
+    }
+    
+    function addDimV(svg, x, y, h, txt) {
+        addLine(svg, x, y, x, y+h, "#555", null, "dim");
+        addText(svg, x+5, y + h/2, txt, "#333", "start");
+        addLine(svg, x-5, y, x, y, "#555");
+        addLine(svg, x-5, y+h, x, y+h, "#555");
+    }
+    function addDimH(svg, x, y, w, txt) {
+        addLine(svg, x, y, x+w, y, "#555", null, "dim");
+        addText(svg, x + w/2, y-5, txt, "#333");
+        addLine(svg, x, y, x, y+5, "#555");
+        addLine(svg, x+w, y, x+w, y+5, "#555");
     }
 
     // 初始化
-    runCement();
+    switchTab('agg');
 </script>
 
 </body>
