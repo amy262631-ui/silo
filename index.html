@@ -1,101 +1,355 @@
-<!DOCTYPE html><html lang="zh-TW"><head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>混凝土廠全能容器設計 (單位修正版)</title> <style> body { font-family: "Microsoft JhengHei", Arial, sans-serif; background: #f4f7f6; padding: 20px; color: #333; margin: 0; } .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); } h2 { text-align: center; color: #2c3e50; margin-bottom: 5px; } .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 20px; font-size: 0.9em; }
 
-/* 分頁按鈕 */ .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; } .tab-btn { flex: 1; padding: 15px; border: none; background: #f1f1f1; font-size: 1.1em; font-weight: bold; cursor: pointer; color: #888; transition: 0.2s; } .tab-btn:hover { background: #e9e9e9; } .tab-btn.active { background: #fff; color: #2c3e50; border-bottom: 4px solid #3498db; }
 
-/* 內容區塊 */ .tab-content { display: none; } .tab-content.active { display: block; }
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Microsoft JhengHei",Arial,sans-serif;background:var(--color-background-tertiary);padding:16px;color:var(--color-text-primary)}
+.wrap{max-width:960px;margin:0 auto;background:var(--color-background-primary);border:1.5px solid var(--color-border-primary);border-radius:var(--border-radius-lg);overflow:hidden}
+.header{padding:14px 20px;background:var(--color-background-secondary);border-bottom:1.5px solid var(--color-border-primary)}
+.header h2{font-size:16px;font-weight:500;color:var(--color-text-primary)}
+.header p{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
 
-.main-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; } @media (max-width: 800px) { .main-grid { grid-template-columns: 1fr; } }
+.tabs{display:flex;border-bottom:1.5px solid var(--color-border-primary)}
+.tb{flex:1;padding:11px;border:none;background:transparent;font-size:14px;font-weight:500;cursor:pointer;color:var(--color-text-secondary);border-bottom:3px solid transparent;transition:.15s}
+.tb:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.tb.active{color:#185FA5;border-bottom:3px solid #378ADD;background:var(--color-background-primary)}
+.tc{display:none}.tc.active{display:block}
 
-/* 輸入區 */ .input-panel { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef; } .group-head { font-weight: bold; margin-top: 15px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 2px solid #ddd; color: #444; } .input-row { margin-bottom: 10px; } label { display: block; font-size: 0.9em; color: #555; font-weight: bold; margin-bottom: 4px; } input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: monospace; font-size: 15px; } input:focus, select:focus { border-color: #3498db; outline: none; } .dual { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.layout{display:grid;grid-template-columns:300px 1fr;min-height:560px}
+@media(max-width:700px){.layout{grid-template-columns:1fr}}
 
-/* 結果區 */ .result-panel { text-align: center; } .info-card { background: #fff; border: 2px solid #eee; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: left; } .res-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.95em; border-bottom: 1px dashed #eee; padding-bottom: 4px; } .res-val { font-weight: bold; font-family: monospace; color: #000; }
+/* 輸入區 — 明顯邊界 + 背景 */
+.inp-col{
+  background:#EAF3DE;
+  border-right:2px solid #639922;
+  padding:0;
+}
+.inp-header{
+  background:#639922;
+  color:#fff;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:.5px;
+  padding:7px 16px;
+  display:flex;align-items:center;gap:6px;
+}
+.inp-body{padding:14px 16px}
 
-.total-box { padding: 15px; border-radius: 8px; color: white; margin-top: 10px; text-align: center; } .bg-cement { background: #2980b9; } .bg-agg { background: #34495e; } .total-val { font-size: 1.5em; font-weight: bold; color: #f1c40f; }
+.gh{font-size:11px;font-weight:500;color:#3B6D11;text-transform:uppercase;letter-spacing:.6px;margin:14px 0 8px;padding-bottom:5px;border-bottom:1.5px solid #97C459}
+.gh:first-child{margin-top:0}
+.row{margin-bottom:9px}
+label{display:block;font-size:12px;color:#3B6D11;margin-bottom:3px;font-weight:500}
+input,select{
+  width:100%;padding:6px 9px;
+  border:1px solid #97C459;
+  border-radius:4px;
+  background:#fff;
+  color:var(--color-text-primary);
+  font-size:14px;font-family:var(--font-mono);
+}
+input:focus,select:focus{outline:none;border-color:#3B6D11;box-shadow:0 0 0 2px rgba(99,153,34,.2)}
+.dual{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
-svg { width: 100%; height: 500px; background: white; border: 1px solid #ccc; border-radius: 8px; margin-top: 10px; } .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.8em; color: white; } </style></head><body>
+/* 結果區 — 白底，格線清楚 */
+.res-col{background:var(--color-background-primary);padding:0}
+.res-header{
+  background:var(--color-background-secondary);
+  border-bottom:1.5px solid var(--color-border-primary);
+  font-size:12px;font-weight:500;color:var(--color-text-secondary);
+  letter-spacing:.5px;padding:7px 16px;
+  display:flex;align-items:center;gap:6px;
+}
+.res-body{padding:14px 16px}
 
-<div class="container"> <h2>🏗️ 混凝土廠全能容器設計 (單位修正版)</h2> <div class="subtitle">水泥桶 (側邊標註) | 骨材庫 (即時連動)</div>
+.rcard{
+  border:1px solid var(--color-border-secondary);
+  border-radius:var(--border-radius-md);
+  overflow:hidden;margin-bottom:12px;
+}
+.rcard-head{
+  background:var(--color-background-secondary);
+  font-size:11px;font-weight:500;color:var(--color-text-secondary);
+  letter-spacing:.4px;padding:5px 12px;
+  border-bottom:1px solid var(--color-border-tertiary);
+}
+.rrow{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:7px 12px;font-size:13px;
+  border-bottom:1px solid var(--color-border-tertiary);
+}
+.rrow:last-child{border-bottom:none}
+.rrow.hi{background:#E6F1FB}
+.rl{color:var(--color-text-secondary)}
+.rv{font-weight:500;font-family:var(--font-mono);color:var(--color-text-primary)}
+.rv.blue{color:#185FA5}
 
-<div class="tabs"> <button id="btn-cement" class="tab-btn active" onclick="switchTab('cement')">🟢 水泥桶 (Silo)</button> <button id="btn-agg" class="tab-btn" onclick="switchTab('agg')">🟤 骨材庫 (Bin)</button> </div>
+.total{
+  border:1px solid #B5D4F4;
+  border-radius:var(--border-radius-md);
+  background:#E6F1FB;
+  padding:10px 14px;
+  margin-bottom:12px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.total.gray{background:#F1EFE8;border-color:#D3D1C7}
+.tl{font-size:12px;color:#185FA5}
+.tl2{font-size:12px;color:#5F5E5A}
+.tv{font-size:20px;font-weight:500;color:#0C447C;font-family:var(--font-mono)}
+.tv2{font-size:20px;font-weight:500;color:#444441;font-family:var(--font-mono)}
+.tsub{font-size:11px;color:#5F5E5A;margin-top:2px}
 
-<div id="tab-cement" class="tab-content active"> <div class="main-grid"> <div class="input-panel"> <div class="group-head" style="margin-top:0;">📋 需求設定</div> <div class="input-row"><label>需求重量 (T)</label><input type="number" id="c_weight" value="150" oninput="runCement()"></div> <div class="input-row"><label>比重 (t/m³)</label><input type="number" id="c_rho" value="1.33" oninput="runCement()"></div> <div class="input-row"><label>預留高 (m)</label><input type="number" id="c_fb" value="0.5" oninput="runCement()"></div>
+svg.draw{width:100%;height:440px;background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:visible;display:block}
+</style>
 
-<div class="group-head">⚙️ 尺寸參數</div> <div class="input-row"><label>直徑 (m)</label><input type="number" id="c_dia" value="4.37" oninput="runCement()"></div> <div class="input-row"><label>單層板高 (m)</label><input type="number" id="c_plate_h" value="1.5" oninput="runCement()"></div> <div class="dual"> <div><label>錐斗斜度 (°)</label><input type="number" id="c_angle" value="60" oninput="runCement()"></div> <div> <div style="display:flex; justify-content:space-between; align-items:end; margin-bottom:4px;"> <label style="margin:0;">出口尺寸</label> <select id="c_out_unit" onchange="runCement()" style="width: auto; padding: 1px; font-size: 12px; height: 20px;"> <option value="inch" selected>英制 (in)</option> <option value="m">公尺 (m)</option> </select> </div> <input type="number" id="c_out_val" value="12" oninput="runCement()"> </div> </div> </div>
+<div class="wrap">
+  <div class="header">
+    <h2>混凝土廠容器設計工具</h2>
+    <p>水泥桶 (Silo) ／ 骨材庫 (Aggregate Bin)</p>
+  </div>
+  <div class="tabs">
+    <button class="tb active" id="btn-c" onclick="sw('c')">🟢 水泥桶 (Silo)</button>
+    <button class="tb" id="btn-a" onclick="sw('a')">🟤 骨材庫 (Bin)</button>
+  </div>
 
-<div class="result-panel"> <div class="info-card"> <div class="res-row"><span>所需層數：</span><span class="res-val" id="res_c_layers">--</span></div> <div class="res-row"><span>直身高度：</span><span class="res-val" id="res_c_cyl">--</span></div> <div class="res-row"><span>錐斗高度：</span><span class="res-val" id="res_c_cone">--</span></div> <div class="res-row" style="background:#eef;"><span>總設計高度：</span><span class="res-val" id="res_c_total" style="color:#007bff">--</span></div> </div> <div class="total-box bg-cement"> <div style="font-size:0.9em; opacity:0.8;">預估滿載重量</div> <div class="total-val"><span id="res_c_max">0</span> T</div> </div> <svg id="svgCement" viewBox="0 0 400 500"></svg> </div> </div> </div>
+  <!-- 水泥桶 -->
+  <div id="tc-c" class="tc active">
+    <div class="layout">
+      <div class="inp-col">
+        <div class="inp-header">✏️ 輸入參數</div>
+        <div class="inp-body">
+          <div class="gh">需求設定</div>
+          <div class="row"><label>需求重量 (T)</label><input type="number" id="c_w" value="150" oninput="rc()"></div>
+          <div class="row"><label>比重 (t/m³)</label><input type="number" id="c_rho" value="1.33" step="0.01" oninput="rc()"></div>
+          <div class="row"><label>預留高 (m)</label><input type="number" id="c_fb" value="0.5" step="0.1" oninput="rc()"></div>
+          <div class="gh">尺寸參數</div>
+          <div class="row"><label>直徑 (m)</label><input type="number" id="c_dia" value="4.37" step="0.01" oninput="rc()"></div>
+          <div class="row"><label>單層板高 (m)</label><input type="number" id="c_ph" value="1.5" step="0.1" oninput="rc()"></div>
+          <div class="dual" style="margin-bottom:9px">
+            <div><label>錐斗斜度 (°)</label><input type="number" id="c_ang" value="60" oninput="rc()"></div>
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:3px">
+                <label style="margin:0">出口尺寸</label>
+                <select id="c_unit" onchange="rc()" style="width:auto;padding:2px 4px;font-size:11px;border-color:#97C459">
+                  <option value="inch" selected>英制 (in)</option>
+                  <option value="m">公尺 (m)</option>
+                </select>
+              </div>
+              <input type="number" id="c_out" value="12" oninput="rc()">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="res-col">
+        <div class="res-header">📐 計算結果</div>
+        <div class="res-body">
+          <div class="rcard">
+            <div class="rcard-head">尺寸計算</div>
+            <div class="rrow"><span class="rl">所需層數</span><span class="rv" id="r_c_lay">--</span></div>
+            <div class="rrow"><span class="rl">直身高度</span><span class="rv" id="r_c_cyl">--</span></div>
+            <div class="rrow"><span class="rl">錐斗高度</span><span class="rv" id="r_c_con">--</span></div>
+            <div class="rrow hi"><span class="rl" style="font-weight:500">總設計高度</span><span class="rv blue" id="r_c_tot">--</span></div>
+          </div>
+          <div class="total">
+            <div><div class="tl">預估滿載重量</div><div class="tsub">依輸入尺寸計算</div></div>
+            <div class="tv"><span id="r_c_max">0</span> T</div>
+          </div>
+          <svg id="svgC" class="draw" viewBox="0 0 380 400"></svg>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<div id="tab-agg" class="tab-content"> <div class="main-grid"> <div class="input-panel"> <div class="group-head" style="margin-top:0;">1. 共用結構 (田字型)</div> <div class="dual"> <div><label>總長 L (m)</label><input type="number" id="a_L_tot" value="12" oninput="runAgg()"></div> <div><label>總寬 W (m)</label><input type="number" id="a_W_tot" value="12" oninput="runAgg()"></div> </div> <div class="input-row" style="margin-top:10px;"> <label>直身高度 (m)</label><input type="number" id="a_H_box" value="4.8" oninput="runAgg()"> </div>
+  <!-- 骨材庫 -->
+  <div id="tc-a" class="tc">
+    <div class="layout">
+      <div class="inp-col">
+        <div class="inp-header">✏️ 輸入參數</div>
+        <div class="inp-body">
+          <div class="gh">共用結構 (田字型)</div>
+          <div class="dual">
+            <div><label>總長 L (m)</label><input type="number" id="a_L" value="12" oninput="ra()"></div>
+            <div><label>總寬 W (m)</label><input type="number" id="a_W" value="12" oninput="ra()"></div>
+          </div>
+          <div class="row" style="margin-top:8px"><label>直身高度 (m)</label><input type="number" id="a_Hb" value="4.8" step="0.1" oninput="ra()"></div>
 
-<div class="group-head" style="color:#d35400; border-color:#d35400;"> <span>2. 砂倉 (左側)</span><span class="badge" style="background:#d35400">左側</span> </div> <div class="dual"> <div><label>錐斗垂高 (m)</label><input type="number" id="a_h_sand" value="4.927" oninput="runAgg()"></div> <div><label>比重</label><input type="number" id="a_rho_sand" value="1.6" oninput="runAgg()"></div> </div> <label style="margin-top:5px;">出口 (m)</label> <div class="dual"> <input type="number" id="a_out_Ls" value="2.3" placeholder="L" oninput="runAgg()"> <input type="number" id="a_out_Ws" value="1.7" placeholder="W" oninput="runAgg()"> </div>
+          <div class="gh" style="color:#993C1D;border-color:#F0997B">砂倉 (左側 × 2)</div>
+          <div class="dual">
+            <div><label>錐斗垂高 (m)</label><input type="number" id="a_hs" value="4.927" step="0.001" oninput="ra()"></div>
+            <div><label>比重 (t/m³)</label><input type="number" id="a_rs" value="1.6" step="0.01" oninput="ra()"></div>
+          </div>
+          <label style="font-size:12px;color:#993C1D;margin:6px 0 3px;display:block;font-weight:500">出口尺寸 (m) — L × W</label>
+          <div class="dual">
+            <input type="number" id="a_oLs" value="2.3" placeholder="L" oninput="ra()" style="border-color:#F0997B">
+            <input type="number" id="a_oWs" value="1.7" placeholder="W" oninput="ra()" style="border-color:#F0997B">
+          </div>
 
-<div class="group-head" style="color:#555; border-color:#555;">3. 石倉 (右側)</div> <div class="dual"> <div><label>錐斗垂高 (m)</label><input type="number" id="a_h_stone" value="4.3" oninput="runAgg()"></div> <div><label>比重</label><input type="number" id="a_rho_stone" value="1.55" oninput="runAgg()"></div> </div> <label style="margin-top:5px;">出口 (m)</label> <div class="dual"> <input type="number" id="a_out_Lst" value="2.3" placeholder="L" oninput="runAgg()"> <input type="number" id="a_out_Wst" value="1.7" placeholder="W" oninput="runAgg()"> </div> </div>
+          <div class="gh" style="color:#444441;border-color:#B4B2A9;margin-top:14px">石倉 (右側 × 2)</div>
+          <div class="dual">
+            <div><label>錐斗垂高 (m)</label><input type="number" id="a_hst" value="4.3" step="0.001" oninput="ra()"></div>
+            <div><label>比重 (t/m³)</label><input type="number" id="a_rst" value="1.55" step="0.01" oninput="ra()"></div>
+          </div>
+          <label style="font-size:12px;color:#444441;margin:6px 0 3px;display:block;font-weight:500">出口尺寸 (m) — L × W</label>
+          <div class="dual">
+            <input type="number" id="a_oLst" value="2.3" placeholder="L" oninput="ra()" style="border-color:#B4B2A9">
+            <input type="number" id="a_oWst" value="1.7" placeholder="W" oninput="ra()" style="border-color:#B4B2A9">
+          </div>
+        </div>
+      </div>
+      <div class="res-col">
+        <div class="res-header">📐 計算結果</div>
+        <div class="res-body">
+          <div class="rcard">
+            <div class="rcard-head">容積計算</div>
+            <div class="rrow"><span class="rl">單倉頂部尺寸</span><span class="rv" id="r_a_top">--</span></div>
+            <div class="rrow" style="border-left:3px solid #D85A30"><span class="rl" style="color:#993C1D">砂倉單顆容積</span><span class="rv" id="r_a_vs">--</span></div>
+            <div class="rrow" style="border-left:3px solid #D85A30"><span class="rl" style="color:#993C1D">砂倉單顆重量</span><span class="rv" id="r_a_ws">--</span></div>
+            <div class="rrow" style="border-left:3px solid #888780"><span class="rl" style="color:#5F5E5A">石倉單顆容積</span><span class="rv" id="r_a_vst">--</span></div>
+            <div class="rrow" style="border-left:3px solid #888780"><span class="rl" style="color:#5F5E5A">石倉單顆重量</span><span class="rv" id="r_a_wst">--</span></div>
+          </div>
+          <div class="total gray">
+            <div><div class="tl2">總重量 (2砂 + 2石)</div><div class="tsub">總容積：<span id="r_a_vt">0</span> m³</div></div>
+            <div class="tv2"><span id="r_a_wt">0</span> T</div>
+          </div>
+          <svg id="svgA" class="draw" viewBox="0 0 480 400"></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-<div class="result-panel"> <div class="info-card"> <div class="res-row"><span>單倉尺寸(Top)：</span><span class="res-val" id="res_a_top">--</span></div> <div class="res-row" style="color:#d35400"><span>砂倉單顆容積：</span><span class="res-val" id="res_a_vol_s">--</span></div> <div class="res-row" style="color:#555"><span>石倉單顆容積：</span><span class="res-val" id="res_a_vol_st">--</span></div> </div> <div class="total-box bg-agg"> <div style="font-size:0.9em; opacity:0.8;">總重量 (2砂+2石)</div> <div class="total-val"><span id="res_a_weight">0</span> T</div> <div style="font-size:0.8em; margin-top:5px;">總容積: <span id="res_a_vol">0</span> m³</div> </div> <svg id="svgAgg" viewBox="0 0 500 500"></svg> </div> </div> </div></div>
+<script>
+function sw(t){
+  ['c','a'].forEach(x=>{
+    document.getElementById('tc-'+x).className='tc'+(x===t?' active':'');
+    document.getElementById('btn-'+x).className='tb'+(x===t?' active':'');
+  });
+  if(t==='c')rc();else ra();
+}
+function v(id){let e=document.getElementById(id);return e?(parseFloat(e.value)||0):0;}
+function ns(x,d=2){return isNaN(x)||!isFinite(x)?'--':x.toFixed(d);}
 
-<script> // --- 1. 分頁切換 --- function switchTab(tabName) { document.getElementById('tab-cement').className = 'tab-content'; document.getElementById('tab-agg').className = 'tab-content'; document.getElementById('btn-cement').className = 'tab-btn'; document.getElementById('btn-agg').className = 'tab-btn';
+function rc(){
+  let W=v('c_w'),rho=v('c_rho')||1,D=v('c_dia'),ph=v('c_ph'),ang=v('c_ang');
+  let outV=v('c_out'),unit=document.getElementById('c_unit').value,fb=v('c_fb');
+  let dOut=(unit==='inch')?(outV*0.0254):outV;
+  let R=D/2,r=dOut/2;
+  let hCone=(R-r)*Math.tan(ang*Math.PI/180);
+  if(hCone<0)hCone=0;
+  let vCone=(Math.PI*hCone/3)*(R*R+R*r+r*r);
+  let vReq=W/rho,vCylNeed=vReq-vCone;
+  let area=Math.PI*R*R;
+  let hCylTheo=vCylNeed>0?vCylNeed/area:0;
+  let layers=Math.ceil((hCylTheo+fb)/ph);
+  if(layers<1)layers=1;
+  let hCyl=layers*ph,vTot=(area*hCyl)+vCone,wTot=vTot*rho,hTot=hCyl+hCone;
+  document.getElementById('r_c_lay').textContent=layers+' 層';
+  document.getElementById('r_c_cyl').textContent=ns(hCyl)+' m';
+  document.getElementById('r_c_con').textContent=ns(hCone)+' m';
+  document.getElementById('r_c_tot').textContent=ns(hTot)+' m';
+  document.getElementById('r_c_max').textContent=ns(wTot,1);
+  drawC(D,hCyl,hCone,dOut,layers);
+}
 
-if (tabName === 'cement') { document.getElementById('tab-cement').className = 'tab-content active'; document.getElementById('btn-cement').className = 'tab-btn active'; runCement(); } else { document.getElementById('tab-agg').className = 'tab-content active'; document.getElementById('btn-agg').className = 'tab-btn active'; runAgg(); } }
+function arr(id,col){
+  return `<marker id="${id}S" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M8,0L0,4L8,8z" fill="${col}"/></marker>
+<marker id="${id}E" markerWidth="8" markerHeight="8" refX="0" refY="4" orient="auto"><path d="M0,0L8,4L0,8z" fill="${col}"/></marker>`;
+}
+function dimH(x,y,w,txt,col='#888780',id='g'){
+  if(w<1)return'';
+  return `<line x1="${x}" y1="${y}" x2="${x+w}" y2="${y}" stroke="${col}" stroke-width="1" marker-start="url(#${id}S)" marker-end="url(#${id}E)"/>
+<line x1="${x}" y1="${y-4}" x2="${x}" y2="${y+4}" stroke="${col}"/>
+<line x1="${x+w}" y1="${y-4}" x2="${x+w}" y2="${y+4}" stroke="${col}"/>
+<text x="${x+w/2}" y="${y-5}" fill="${col}" font-size="11" text-anchor="middle" font-family="monospace">${txt}</text>`;
+}
+function dimV(x,y,h,txt,col='#888780',id='g',anchor='start'){
+  if(h<1)return'';
+  let tx=anchor==='end'?x-4:x+4;
+  return `<line x1="${x}" y1="${y}" x2="${x}" y2="${y+h}" stroke="${col}" stroke-width="1" marker-start="url(#${id}S)" marker-end="url(#${id}E)"/>
+<line x1="${x-4}" y1="${y}" x2="${x+4}" y2="${y}" stroke="${col}"/>
+<line x1="${x-4}" y1="${y+h}" x2="${x+4}" y2="${y+h}" stroke="${col}"/>
+<text x="${tx}" y="${y+h/2+4}" fill="${col}" font-size="11" text-anchor="${anchor}" font-family="monospace">${txt}</text>`;
+}
 
-// --- 2. 工具 --- function val(id) { let el = document.getElementById(id); return el ? (parseFloat(el.value) || 0) : 0; }
+function drawC(D,h1,h2,dOut,layers){
+  let svg=document.getElementById('svgC');
+  let W=380,H=400,pad=50;
+  let totH=h1+h2||1;
+  let ppm=Math.min((H-pad*2.2)/totH,(W-pad*2.2)/D);
+  let Wpx=D*ppm,H1px=h1*ppm,H2px=h2*ppm,oPx=Math.max(dOut*ppm,4);
+  let cx=W/2,x=cx-Wpx/2,y=pad;
+  let s=`<defs>${arr('g','#888780')}</defs>`;
+  s+=`<rect x="${x}" y="${y}" width="${Wpx}" height="${H1px}" fill="rgba(55,138,221,.08)" stroke="#378ADD" stroke-width="2"/>`;
+  if(layers>1){
+    let step=H1px/layers;
+    for(let i=1;i<layers;i++){
+      let ly=y+i*step;
+      s+=`<line x1="${x}" y1="${ly}" x2="${x+Wpx}" y2="${ly}" stroke="#B5D4F4" stroke-width="1" stroke-dasharray="5,3"/>`;
+      s+=`<text x="${x+6}" y="${ly-3}" fill="#378ADD" font-size="10" font-family="monospace">${i}</text>`;
+    }
+  }
+  let y2=y+H1px,y3=y2+H2px,oL=cx-oPx/2,oR=cx+oPx/2;
+  s+=`<polygon points="${x},${y2} ${x+Wpx},${y2} ${oR},${y3} ${oL},${y3}" fill="rgba(55,138,221,.04)" stroke="#378ADD" stroke-width="2"/>`;
+  s+=`<line x1="${oL}" y1="${y3}" x2="${oR}" y2="${y3}" stroke="#185FA5" stroke-width="3"/>`;
+  s+=dimH(x,y-18,Wpx,`D = ${D.toFixed(2)} m`);
+  s+=dimV(x-14,y,H1px,`${h1.toFixed(2)} m`,'#888780','g','end');
+  s+=dimV(x-14,y2,H2px,`${h2.toFixed(2)} m`,'#888780','g','end');
+  s+=`<line x1="${oL}" y1="${y3}" x2="${oL}" y2="${y3+26}" stroke="#aaa"/>`;
+  s+=`<line x1="${oR}" y1="${y3}" x2="${oR}" y2="${y3+26}" stroke="#aaa"/>`;
+  s+=dimH(oL,y3+20,oPx,`d=${dOut.toFixed(3)}m`,'#5F5E5A','g');
+  if(H1px>20)s+=`<text x="${cx}" y="${y+H1px/2+5}" fill="#185FA5" font-size="12" text-anchor="middle" font-family="monospace">${layers} 層</text>`;
+  svg.innerHTML=s;
+}
 
-// --- 3. 水泥桶計算 --- function runCement() { let W = val('c_weight'); let rho = val('c_rho') || 1; let D = val('c_dia'); let plateH = val('c_plate_h'); let ang = val('c_angle'); // 修改處：取得單位並進行換算 let out_val = val('c_out_val'); let out_unit = document.getElementById('c_out_unit').value; let fb = val('c_fb');
+function ra(){
+  let L=v('a_L'),W=v('a_W'),Hb=v('a_Hb');
+  let hs=v('a_hs'),rs=v('a_rs'),oLs=v('a_oLs'),oWs=v('a_oWs');
+  let hst=v('a_hst'),rst=v('a_rst'),oLst=v('a_oLst'),oWst=v('a_oWst');
+  let Lc=L/2,Wc=W/2,At=Lc*Wc,Vbox=At*Hb;
+  let Abs=oLs*oWs,Vcs=(hs/3)*(At+Abs+Math.sqrt(At*Abs)),Vs=Vbox+Vcs;
+  let Abst=oLst*oWst,Vcst=(hst/3)*(At+Abst+Math.sqrt(At*Abst)),Vst=Vbox+Vcst;
+  let Vtot=(Vs+Vst)*2,Wtot=(Vs*rs+Vst*rst)*2;
+  document.getElementById('r_a_top').textContent=`${ns(Lc)} × ${ns(Wc)} m`;
+  document.getElementById('r_a_vs').textContent=ns(Vs)+' m³';
+  document.getElementById('r_a_vst').textContent=ns(Vst)+' m³';
+  document.getElementById('r_a_ws').textContent=ns(Vs*rs,1)+' T';
+  document.getElementById('r_a_wst').textContent=ns(Vst*rst,1)+' T';
+  document.getElementById('r_a_wt').textContent=ns(Wtot,1);
+  document.getElementById('r_a_vt').textContent=ns(Vtot,1);
+  drawA(L,Hb,hs,hst,oLs,oLst);
+}
 
-// 如果選英制則乘 0.0254，如果選 m 則不變 let d_out = (out_unit === 'inch') ? (out_val * 0.0254) : out_val;
+function drawA(L,Hb,hs,hst,ws,wst){
+  let svg=document.getElementById('svgA');
+  let W=480,H=400,pad=50;
+  let maxH=Hb+Math.max(hs,hst)+1;
+  let ppm=Math.min((H-pad*2)/maxH,(W-pad*2.5)/L);
+  let Wh=L/2*ppm,Hbpx=Hb*ppm,Hspx=hs*ppm,Hstpx=hst*ppm;
+  let wspx=Math.max(ws*ppm,5),wstpx=Math.max(wst*ppm,5);
+  let x=(W-Wh*2)/2,y=pad;
+  let s=`<defs>${arr('g','#888780')}${arr('r','#D85A30')}</defs>`;
+  s+=`<rect x="${x}" y="${y}" width="${Wh}" height="${Hbpx}" fill="rgba(217,90,48,.07)" stroke="#D85A30" stroke-width="2"/>`;
+  s+=`<rect x="${x+Wh}" y="${y}" width="${Wh}" height="${Hbpx}" fill="rgba(136,135,128,.1)" stroke="#888780" stroke-width="2"/>`;
+  s+=`<line x1="${x+Wh}" y1="${y}" x2="${x+Wh}" y2="${y+Hbpx}" stroke="#B4B2A9" stroke-width="1.5" stroke-dasharray="5,4"/>`;
+  let y2=y+Hbpx,cxs=x+Wh/2,cxst=x+Wh+Wh/2;
+  s+=`<polygon points="${x},${y2} ${x+Wh},${y2} ${cxs+wspx/2},${y2+Hspx} ${cxs-wspx/2},${y2+Hspx}" fill="rgba(217,90,48,.06)" stroke="#D85A30" stroke-width="2"/>`;
+  s+=`<polygon points="${x+Wh},${y2} ${x+Wh*2},${y2} ${cxst+wstpx/2},${y2+Hstpx} ${cxst-wstpx/2},${y2+Hstpx}" fill="rgba(136,135,128,.07)" stroke="#888780" stroke-width="2"/>`;
+  s+=`<text x="${cxs}" y="${y+Hbpx/2+6}" fill="#993C1D" font-size="15" text-anchor="middle" font-family="monospace" font-weight="500">砂</text>`;
+  s+=`<text x="${cxst}" y="${y+Hbpx/2+6}" fill="#5F5E5A" font-size="15" text-anchor="middle" font-family="monospace" font-weight="500">石</text>`;
+  s+=`<text x="${cxs}" y="${y2+Hspx+15}" fill="#993C1D" font-size="11" text-anchor="middle" font-family="monospace">${hs.toFixed(3)}m</text>`;
+  s+=`<text x="${cxst}" y="${y2+Hstpx+15}" fill="#888780" font-size="11" text-anchor="middle" font-family="monospace">${hst.toFixed(3)}m</text>`;
+  s+=dimH(x,y-18,Wh*2,`L = ${v('a_L').toFixed(1)} m`);
+  let rx=x+Wh*2+16;
+  s+=`<line x1="${x+Wh*2}" y1="${y}" x2="${rx+8}" y2="${y}" stroke="#ccc" stroke-dasharray="3,3"/>`;
+  s+=`<line x1="${x+Wh*2}" y1="${y+Hbpx}" x2="${rx+8}" y2="${y+Hbpx}" stroke="#ccc" stroke-dasharray="3,3"/>`;
+  s+=dimV(rx+4,y,Hbpx,`H=${Hb}m`,'#888780','g','start');
+  let diff=Math.abs(hs-hst);
+  if(diff>0.005){
+    let my1=y2+Math.min(Hspx,Hstpx),my2=y2+Math.max(Hspx,Hstpx);
+    let mx=x+Wh*2+40;
+    s+=`<line x1="${hs>hst?x+Wh:x+Wh*2}" y1="${my2}" x2="${mx+8}" y2="${my2}" stroke="#F0997B" stroke-dasharray="2,2"/>`;
+    s+=dimV(mx+4,my1,my2-my1,`Δ${diff.toFixed(3)}`,'#D85A30','r','start');
+  }
+  svg.innerHTML=s;
+}
 
-let R = D/2, r = d_out/2;
-
-let h_cone = (R - r) * Math.tan(ang * Math.PI/180); if(h_cone < 0) h_cone = 0; let V_cone = (Math.PI * h_cone / 3) * (R*R + R*r + r*r); let V_req = W / rho; let V_cyl_needed = V_req - V_cone; let Area = Math.PI * R*R; let h_cyl_theo = V_cyl_needed > 0 ? V_cyl_needed / Area : 0; let layers = Math.ceil((h_cyl_theo + fb) / plateH); if(layers === 0 && h_cyl_theo > 0) layers = 1; let h_cyl_act = layers * plateH; let V_total = (Area * h_cyl_act) + V_cone; let W_total = V_total * rho; let H_total = h_cyl_act + h_cone;
-
-document.getElementById('res_c_layers').innerText = layers; document.getElementById('res_c_cyl').innerText = h_cyl_act.toFixed(2) + " m"; document.getElementById('res_c_cone').innerText = h_cone.toFixed(2) + " m"; document.getElementById('res_c_total').innerText = H_total.toFixed(2) + " m"; document.getElementById('res_c_max').innerText = W_total.toFixed(1);
-
-drawCement(D, h_cyl_act, h_cone, d_out, layers); }
-
-function drawCement(D, h1, h2, d_out, layers) { let svg = document.getElementById('svgCement'); svg.innerHTML = ` <defs> <marker id="arrS" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#333"/></marker> <marker id="arrE" markerWidth="8" markerHeight="8" refX="0" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#333"/></marker> </defs>`; let w = 400, h = 500, pad = 60; let totalH = h1 + h2; if(totalH === 0) totalH = 1; // 比例計算 let ppm = (h - pad*2.5) / totalH; if(D * ppm > (w - pad*2)) ppm = (w - pad*2) / D;
-
-let W_px = D * ppm; let H1_px = h1 * ppm; let H2_px = h2 * ppm; let out_px = Math.max(d_out * ppm, 4); let cx = w/2; let x = cx - W_px/2; let y = pad;
-
-// 1. 直身 addRect(svg, x, y, W_px, H1_px, "none", "#333");
-
-// 2. 層線 if(layers > 0 && H1_px > 0) { let step = H1_px / layers; for(let i=1; i<layers; i++) { addLine(svg, x, y + i*step, x + W_px, y + i*step, "#ccc", "4,2"); } }
-
-// 3. 錐斗 let y2 = y + H1_px; let y3 = y2 + H2_px; let outL = cx - out_px/2; let outR = cx + out_px/2; let pts = `${x},${y2} ${x+W_px},${y2} ${outR},${y3} ${outL},${y3}`; addPoly(svg, pts, "none", "#333");
-
-// 4. 尺寸標註 addDimH(svg, x, y-15, W_px, `D=${D}m`); addDimV(svg, x+W_px+15, y, H1_px, `H=${h1.toFixed(2)}m`); addDimV(svg, x+W_px+15, y2, H2_px, `h=${h2.toFixed(2)}m`);
-
-// 5. 出口標註 addLine(svg, outL, y3, outL, y3+25, "#999"); addLine(svg, outR, y3, outR, y3+25, "#999"); let dimY = y3 + 20; addLine(svg, outL, dimY, outR, dimY, "#555"); addText(svg, outR + 5, dimY + 4, `d=${d_out.toFixed(2)}`, "#333", "start"); }
-
-// --- 4. 骨材庫計算 --- function runAgg() { let L = val('a_L_tot'); let W = val('a_W_tot'); let H_box = val('a_H_box'); let h_s = val('a_h_sand'); let rho_s = val('a_rho_sand'); // 修改處：輸入單位已由 mm 改為 m，因此移除 /1000 let out_Ls = val('a_out_Ls'); let out_Ws = val('a_out_Ws');
-
-let h_st = val('a_h_stone'); let rho_st = val('a_rho_stone'); // 修改處：輸入單位已由 mm 改為 m，因此移除 /1000 let out_Lst = val('a_out_Lst'); let out_Wst = val('a_out_Wst');
-
-let L_cell = L/2, W_cell = W/2; let A_top = L_cell * W_cell; let V_box = A_top * H_box;
-
-let A_bot_s = out_Ls * out_Ws; let V_cone_s = (h_s/3)*(A_top + A_bot_s + Math.sqrt(A_top*A_bot_s)); let V_s_one = V_box + V_cone_s;
-
-let A_bot_st = out_Lst * out_Wst; let V_cone_st = (h_st/3)*(A_top + A_bot_st + Math.sqrt(A_top*A_bot_st)); let V_st_one = V_box + V_cone_st;
-
-let V_tot = (V_s_one * 2) + (V_st_one * 2); let W_tot = (V_s_one * rho_s * 2) + (V_st_one * rho_st * 2);
-
-document.getElementById('res_a_top').innerText = `${L_cell.toFixed(2)} x ${W_cell.toFixed(2)} m`; document.getElementById('res_a_vol_s').innerText = V_s_one.toFixed(2) + " m³"; document.getElementById('res_a_vol_st').innerText = V_st_one.toFixed(2) + " m³"; document.getElementById('res_a_weight').innerText = W_tot.toFixed(1); document.getElementById('res_a_vol').innerText = V_tot.toFixed(1);
-
-drawAgg(L, H_box, h_s, h_st, out_Ls, out_Lst); }
-
-function drawAgg(L, H_box, h_s, h_st, w_s, w_st) { let svg = document.getElementById('svgAgg'); svg.innerHTML = ` <defs> <marker id="arrS" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#c0392b"/></marker> <marker id="arrE" markerWidth="8" markerHeight="8" refX="0" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#c0392b"/></marker> <marker id="blkS" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M6,0 L0,3 L6,6 z" fill="#333"/></marker> <marker id="blkE" markerWidth="6" markerHeight="6" refX="0" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#333"/></marker> </defs>`;
-
-let w = 500, h = 450, pad = 60; let maxH = H_box + Math.max(h_s, h_st) + 1; if(maxH < 1) maxH = 1; let ppm = (h - pad*2) / maxH; if(L * ppm > (w - pad*2)) ppm = (w - pad*2) / L;
-
-let W_px = (L/2) * ppm; let H_box_px = H_box * ppm; let H_s_px = h_s * ppm; let H_st_px = h_st * ppm; let ws_px = Math.max(w_s*ppm, 5); let wst_px = Math.max(w_st*ppm, 5);
-
-let x = (w - W_px*2)/2; let y = pad;
-
-addRect(svg, x, y, W_px, H_box_px, "#fff3e0", "#333"); addRect(svg, x+W_px, y, W_px, H_box_px, "#f5f5f5", "#333"); addLine(svg, x+W_px, y, x+W_px, y+H_box_px, "#999", "4,4"); addDimV(svg, x+W_px*2 + 10, y, H_box_px, `H=${H_box}m`); addDimH(svg, x, y-30, W_px*2, `L=${L}m`);
-
-let y2 = y + H_box_px; let cx_s = x + W_px/2; let pts_s = `${x},${y2} ${x+W_px},${y2} ${cx_s+ws_px/2},${y2+H_s_px} ${cx_s-ws_px/2},${y2+H_s_px}`; addPoly(svg, pts_s, "none", "#d35400"); let cx_st = x + W_px + W_px/2; let pts_st = `${x+W_px},${y2} ${x+W_px*2},${y2} ${cx_st+wst_px/2},${y2+H_st_px} ${cx_st-wst_px/2},${y2+H_st_px}`; addPoly(svg, pts_st, "none", "#7f8c8d");
-
-addText(svg, cx_s, y+H_box_px/2, "砂", "#d35400"); addText(svg, cx_st, y+H_box_px/2, "石", "#555"); addText(svg, cx_s, y2+H_s_px+20, `h=${h_s}`, "#d35400"); addText(svg, cx_st, y2+H_st_px+20, `h=${h_st}`, "#555"); let diff = Math.abs(h_s - h_st); let mx = x + W_px*2 + 40; let my1 = y2 + H_st_px; let my2 = y2 + H_s_px; addLine(svg, x+W_px*2, my1, mx, my1, "#ccc", "2,2"); addLine(svg, x+W_px, my2, mx, my2, "#ccc", "2,2"); addLine(svg, mx, my1, mx, my2, "#c0392b", null, "diff"); addText(svg, mx+15, (my1+my2)/2, `Δ ${diff.toFixed(2)}`, "#c0392b", "start"); }
-
-// --- Helpers --- function addRect(svg, x, y, w, h, fill, stroke) { let el = document.createElementNS("http://www.w3.org/2000/svg", "rect"); el.setAttribute("x", x); el.setAttribute("y", y); el.setAttribute("width", w); el.setAttribute("height", h); el.setAttribute("fill", fill); el.setAttribute("stroke", stroke); el.setAttribute("stroke-width", 2); svg.appendChild(el); } function addLine(svg, x1, y1, x2, y2, color, dash, markerMode) { let el = document.createElementNS("http://www.w3.org/2000/svg", "line"); el.setAttribute("x1", x1); el.setAttribute("y1", y1); el.setAttribute("x2", x2); el.setAttribute("y2", y2); el.setAttribute("stroke", color); el.setAttribute("stroke-width", 1.5); if(dash) el.setAttribute("stroke-dasharray", dash); if(markerMode === "diff") { el.setAttribute("marker-start", "url(#arrS)"); el.setAttribute("marker-end", "url(#arrE)"); } else if(markerMode === "dim") { el.setAttribute("marker-start", "url(#blkS)"); el.setAttribute("marker-end", "url(#blkE)"); } svg.appendChild(el); } function addPoly(svg, pts, fill, stroke) { let el = document.createElementNS("http://www.w3.org/2000/svg", "polygon"); el.setAttribute("points", pts); el.setAttribute("fill", fill); el.setAttribute("stroke", stroke); el.setAttribute("stroke-width", 2); svg.appendChild(el); } function addText(svg, x, y, txt, color, anchor="middle") { let el = document.createElementNS("http://www.w3.org/2000/svg", "text"); el.setAttribute("x", x); el.setAttribute("y", y); el.setAttribute("fill", color); el.setAttribute("text-anchor", anchor); el.setAttribute("font-family", "monospace"); el.setAttribute("font-weight", "bold"); el.textContent = txt; svg.appendChild(el); } function addDimV(svg, x, y, h, txt) { addLine(svg, x, y, x, y+h, "#555", null, "dim"); addText(svg, x+5, y + h/2, txt, "#333", "start"); addLine(svg, x-5, y, x, y, "#555"); addLine(svg, x-5, y+h, x, y+h, "#555"); } function addDimH(svg, x, y, w, txt) { addLine(svg, x, y, x+w, y, "#555", null, "dim"); addText(svg, x + w/2, y-5, txt, "#333"); addLine(svg, x, y, x, y+5, "#555"); addLine(svg, x+w, y, x+w, y+5, "#555"); }
-
-// 初始化 switchTab('agg');</script>
-
-</body></html> 
+rc();ra();
+</script>
