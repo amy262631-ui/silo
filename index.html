@@ -1,249 +1,99 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>混凝土廠全能容器設計 (完全整合版)</title>
-    <style>
-        body { font-family: "Microsoft JhengHei", Arial, sans-serif; background: #f4f7f6; padding: 20px; color: #333; margin: 0; }
-        .container { max-width: 1300px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 25px; font-size: 0.95em; }
+<!doctype html><html lang="zh-Hant"><head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <title>單出口 / 雙出口展開計算器</title> <style> :root { font-family: "Microsoft JhengHei", Arial, sans-serif; } body { margin: 0; background: #f5f5f5; color: #222; } .wrap { max-width: 1080px; margin: 18px auto; padding: 16px; } h1 { margin: 0 0 12px; font-size: 28px; } .card { background: #fff; border: 1px solid #d9d9d9; border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); padding: 14px; margin-bottom: 14px; } .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; } select { width: 100%; box-sizing: border-box; padding: 8px 10px; font-size: 15px; border: 1px solid #c8c8c8; border-radius: 6px; background: #fff; } label { display: block; font-size: 14px; margin-bottom: 6px; } input { width: 100%; box-sizing: border-box; padding: 8px 10px; font-size: 15px; border: 1px solid #c8c8c8; border-radius: 6px; } .btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; } button { border: none; border-radius: 8px; padding: 10px 14px; font-size: 14px; cursor: pointer; background: #6f7f14; color: #fff; } button.secondary { background: #567; } button:disabled { background: #999; cursor: not-allowed; } .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } .result-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px; } .k { font-weight: 700; } .v { text-align: right; font-family: Consolas, monospace; } .note { font-size: 12px; color: #666; } #preview { width: 100%; border: 1px dashed #bbb; background: #fff; border-radius: 8px; } .ok { color: #145a14; } .warn { color: #9b1c1c; } @media (max-width: 860px) { .grid, .two-col, .result-row { grid-template-columns: 1fr; } } </style></head><body> <div class="wrap"> <h1>單出口 / 雙出口展開（板金）</h1>
 
-        .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 15px; border: none; background: #f1f1f1; font-size: 1.1em; font-weight: bold; cursor: pointer; color: #888; transition: 0.2s; }
-        .tab-btn:hover { background: #e9e9e9; }
-        .tab-btn.active { background: #fff; color: #2c3e50; border-bottom: 4px solid #3498db; }
+<div class="card"> <div class="grid"> <div> <label for="mode">展開模式</label> <select id="mode"> <option value="single">單出口（完整展開）</option> <option value="dualHalf">雙出口（單邊展開）</option> </select> </div> <div id="singleInputModeWrap"> <label for="singleInputMode">單出口輸入方式</label> <select id="singleInputMode"> <option value="H">輸入垂高 H</option> <option value="angle">輸入上方夾角 α</option> </select> </div> <div> <label for="D">上方大圓外徑 D (mm)</label> <input id="D" type="number" min="0" step="0.01" value="400" /> </div> <div> <label for="d">下方單一出口外徑 d (mm)</label> <input id="d" type="number" min="0" step="0.01" value="200" /> </div> <div> <label for="t">板厚 t (mm)</label> <input id="t" type="number" min="0" step="0.01" value="3" /> </div> <div> <label for="H">垂直高度 H (mm)</label> <input id="H" type="number" min="0" step="0.01" value="173.205" /> </div> <div id="angleWrap" style="display:none;"> <label for="angle">上方夾角 α (deg)</label> <input id="angle" type="number" min="1" max="89" step="0.01" value="60" /> </div> <div id="pWrap" style="display:none;"> <label for="P">兩出口中心距 P (mm)</label> <input id="P" type="number" min="0" step="0.01" value="200" /> </div> <div id="dualCalWrap1" style="display:none;"> <label for="bigTopLen">大片上邊長校正 (mm)</label> <input id="bigTopLen" type="number" min="0" step="0.01" value="1317" /> </div> <div id="dualCalWrap2" style="display:none;"> <label for="smallTopLen">小片上邊長校正 (mm)</label> <input id="smallTopLen" type="number" min="0" step="0.01" value="797" /> </div> <div id="dualCalWrap3" style="display:none;"> <label for="bigHeightCal">大片總高校正 (mm)</label> <input id="bigHeightCal" type="number" min="0" step="0.01" value="1570" /> </div> <div> <label for="segments">DXF 圓弧分段數</label> <input id="segments" type="number" min="12" max="720" step="1" value="120" /> </div> </div> <div class="btns"> <button id="calcBtn">計算 / 重繪</button> <button id="dxfBtn" class="secondary" disabled>下載 DXF</button> <button id="svgBtn" class="secondary" disabled>下載 SVG</button> <button id="pngBtn" class="secondary" disabled>下載 PNG</button> </div> <div id="msg" class="note"></div> </div>
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        /* 佈局控制 */
-        .main-grid { display: grid; grid-template-columns: 320px 1fr 1fr; gap: 20px; }
-        .agg-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
-        @media (max-width: 1200px) { .main-grid, .agg-grid { grid-template-columns: 1fr; } }
+<div class="two-col"> <div class="card"> <h3>計算結果（中性層）</h3> <div id="results"></div> <p class="note">說明：單出口可在垂高 H / 夾角 α 二選一輸入；雙出口為對稱單邊展開。預設雙出口中心距 P = D/2（可改）。雙出口可輸入「大片上邊 / 小片上邊 / 大片總高」做工程校正以貼近現場圖法。以中性層直徑 Dm=D-t、dm=d-t 展開。</p> </div> <div class="card"> <h3>展開圖預覽</h3> <svg id="preview" viewBox="0 0 800 500"></svg> </div> </div> </div>
 
-        .input-panel { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef; }
-        .group-head { font-weight: bold; margin-top: 15px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #3498db; color: #2c3e50; }
-        label { display: block; font-size: 0.85em; color: #555; font-weight: bold; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: monospace; font-size: 15px; margin-bottom: 12px; }
-        .dual { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-        .dual input { margin-bottom: 0; }
+<script> const $ = (id) => document.getElementById(id); let model = null;
 
-        .total-box { padding: 15px; border-radius: 8px; color: white; text-align: center; margin-bottom: 15px; }
-        .bg-cement { background: #2980b9; }
-        .bg-agg { background: #34495e; }
-        
-        .info-card { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-        .res-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.95em; border-bottom: 1px dashed #eee; padding-bottom: 2px;}
-        .res-val { font-weight: bold; font-family: monospace; }
-        .res-area { font-weight: bold; color: #c0392b; }
+function num(id) { return parseFloat($(id).value); }
 
-        svg { width: 100%; height: 450px; background: white; border: 1px solid #ddd; border-radius: 8px; }
-        .draw-title { font-size: 0.95em; font-weight: bold; margin: 15px 0 8px; color: #2c3e50; display: flex; justify-content: space-between; align-items: center; }
-        button.download-btn { background: #27ae60; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
-        .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.8em; color: white; }
-    </style>
-</head>
-<body>
+function f(v, p = 3) { return Number(v).toFixed(p); }
 
-<div class="container">
-    <h2>🏗️ 混凝土廠全能容器設計 (最終整合版)</h2>
-    <div class="subtitle">水泥桶 (含板金展開) | 骨材庫 (即時連動設計)</div>
+function dist3(a, b) { const dx = a[0] - b[0]; const dy = a[1] - b[1]; const dz = (a[2] || 0) - (b[2] || 0); return Math.sqrt(dx * dx + dy * dy + dz * dz); }
 
-    <div class="tabs">
-        <button id="btn-cement" class="tab-btn active" onclick="switchTab('cement')">🟢 水泥桶 (Silo)</button>
-        <button id="btn-agg" class="tab-btn" onclick="switchTab('agg')">🟤 骨材庫 (Bin)</button>
-    </div>
+function dist2(a, b) { const dx = a[0] - b[0]; const dy = a[1] - b[1]; return Math.sqrt(dx * dx + dy * dy); }
 
-    <div id="tab-cement" class="tab-content active">
-        <div class="main-grid">
-            <div class="input-panel">
-                <div class="group-head" style="margin-top:0;">📋 需求與板材</div>
-                <div class="dual">
-                    <div><label>需求 (T)</label><input type="number" id="c_weight" value="150" oninput="runCement()"></div>
-                    <div><label>比重</label><input type="number" id="c_rho" value="1.33" oninput="runCement()"></div>
-                </div>
-                <div class="dual">
-                    <div><label>板厚 t(mm)</label><input type="number" id="c_thick" value="6" oninput="runCement()"></div>
-                    <div><label>層高 (m)</label><input type="number" id="c_plate_h" value="1.5" oninput="runCement()"></div>
-                </div>
-                <div class="group-head">⚙️ 幾何尺寸</div>
-                <label>直徑 D (m)</label><input type="number" id="c_dia" value="4.37" oninput="runCement()">
-                <div class="dual">
-                    <div><label>角度 α (°)</label><input type="number" id="c_angle" value="60" oninput="runCement()"></div>
-                    <div>
-                        <label>出口 d</label>
-                        <div style="display:flex;"><input type="number" id="c_out_val" value="12" oninput="runCement()">
-                        <select id="c_out_unit" onchange="runCement()" style="width:60px;"><option value="inch">in</option><option value="m">m</option></select></div>
-                    </div>
-                </div>
-            </div>
-            <div class="result-panel">
-                <div class="total-box bg-cement">重量: <span id="res_c_max" style="font-size:1.5em; font-weight:bold;">0</span> T</div>
-                <div class="info-card">
-                    <div class="res-row"><span>總層數：</span><span class="res-val" id="res_c_layers">--</span></div>
-                    <div class="res-row"><span>總設計高：</span><span class="res-val" id="res_c_total">--</span></div>
-                </div>
-                <div class="draw-title">設計側視圖</div>
-                <svg id="svgCement" viewBox="0 0 400 500"></svg>
-            </div>
-            <div class="unfold-panel">
-                <div class="info-card" style="border-color:#27ae60;">
-                    <div class="res-row"><span style="color:#c0392b">料片最大尺寸</span><span class="res-area res-val" id="unf_area">--</span></div>
-                    <div class="res-row"><span>展開 R：</span><span class="res-val" id="unf_R">--</span></div>
-                </div>
-                <div class="draw-title">展開預覽 <button class="download-btn" onclick="downloadDXF()">下載 DXF</button></div>
-                <svg id="svgUnfold" viewBox="0 0 500 500"></svg>
-            </div>
-        </div>
-    </div>
+function cross2(o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); }
 
-    <div id="tab-agg" class="tab-content">
-        <div class="agg-grid">
-            <div class="input-panel">
-                <div class="group-head" style="margin-top:0;">1. 共用結構 (田字型)</div>
-                <div class="dual">
-                    <div><label>總長 L (m)</label><input type="number" id="a_L_tot" value="12" oninput="runAgg()"></div>
-                    <div><label>總寬 W (m)</label><input type="number" id="a_W_tot" value="12" oninput="runAgg()"></div>
-                </div>
-                <label>直身高度 (m)</label><input type="number" id="a_H_box" value="4.8" oninput="runAgg()">
+function circleIntersections(c0, r0, c1, r1) { const dx = c1[0] - c0[0]; const dy = c1[1] - c0[1]; const d = Math.sqrt(dx * dx + dy * dy); if (d === 0 || d > r0 + r1 || d < Math.abs(r0 - r1)) return []; const a = (r0 * r0 - r1 * r1 + d * d) / (2 * d); const h2 = r0 * r0 - a * a; if (h2 < -1e-8) return []; const h = Math.sqrt(Math.max(0, h2)); const xm = c0[0] + (a * dx) / d; const ym = c0[1] + (a * dy) / d; const rx = -dy * (h / d); const ry = dx * (h / d); return [ [xm + rx, ym + ry], [xm - rx, ym - ry] ]; }
 
-                <div class="group-head" style="color:#d35400;">2. 砂倉 (左側) <span class="badge" style="background:#d35400">左側</span></div>
-                <div class="dual">
-                    <div><label>錐斗垂高</label><input type="number" id="a_h_sand" value="4.927" oninput="runAgg()"></div>
-                    <div><label>比重</label><input type="number" id="a_rho_sand" value="1.6" oninput="runAgg()"></div>
-                </div>
-                <label>出口 (m)</label>
-                <div class="dual"><input type="number" id="a_out_Ls" value="2.3" oninput="runAgg()"><input type="number" id="a_out_Ws" value="1.7" oninput="runAgg()"></div>
+function choosePt(cands, prev, preferUp = true) { if (cands.length === 1) return cands[0]; if (cands.length === 0) return null; const score = (p) => { const s1 = preferUp ? p[1] : -p[1]; const s2 = prev ? -dist2(p, prev) : 0; return s1 * 1000 + s2; }; return score(cands[0]) >= score(cands[1]) ? cands[0] : cands[1]; }
 
-                <div class="group-head" style="color:#555;">3. 石倉 (右側)</div>
-                <div class="dual">
-                    <div><label>錐斗垂高</label><input type="number" id="a_h_stone" value="4.3" oninput="runAgg()"></div>
-                    <div><label>比重</label><input type="number" id="a_rho_stone" value="1.55" oninput="runAgg()"></div>
-                </div>
-                <label>出口 (m)</label>
-                <div class="dual"><input type="number" id="a_out_Lst" value="2.3" oninput="runAgg()"><input type="number" id="a_out_Wst" value="1.7" oninput="runAgg()"></div>
-            </div>
+function selectByDirection(cands, base, prev) { if (cands.length === 0) return null; if (cands.length === 1 || !prev) return cands[0]; const dirX = base[0] - prev[0]; const dirY = base[1] - prev[1]; const len = Math.sqrt(dirX * dirX + dirY * dirY) || 1; const ux = dirX / len; const uy = dirY / len; const pred = [base[0] + ux, base[1] + uy]; const d0 = dist2(cands[0], pred); const d1 = dist2(cands[1], pred); return d0 <= d1 ? cands[0] : cands[1]; }
 
-            <div class="result-panel">
-                <div class="info-card">
-                    <div class="res-row"><span>單倉尺寸：</span><span class="res-val" id="res_a_top">--</span></div>
-                    <div class="res-row"><span>砂倉容積：</span><span class="res-val" id="res_a_vol_s">--</span></div>
-                    <div class="res-row"><span>石倉容積：</span><span class="res-val" id="res_a_vol_st">--</span></div>
-                </div>
-                <div class="total-box bg-agg">
-                    <div style="font-size:0.9em; opacity:0.8;">總重量 (2砂+2石)</div>
-                    <div class="total-val" style="font-size:1.5em; font-weight:bold; color:#f1c40f;"><span id="res_a_weight">0</span> T</div>
-                </div>
-                <svg id="svgAgg" viewBox="0 0 500 500"></svg>
-            </div>
-        </div>
-    </div>
-</div>
+function unfoldStrip(a3, b3) { const n = a3.length - 1; const A = new Array(n + 1); const B = new Array(n + 1); A[0] = [0, 0]; B[0] = [dist3(a3[0], b3[0]), 0]; for (let i = 0; i < n; i++) { const aa = dist3(a3[i], a3[i + 1]); const ba = dist3(b3[i], a3[i + 1]); const bb = dist3(b3[i], b3[i + 1]); const ab = dist3(a3[i + 1], b3[i + 1]);
 
-<script>
-    let currentUnfoldModel = null;
+const aNextCands = circleIntersections(A[i], aa, B[i], ba); const aNext = selectByDirection(aNextCands, A[i], i > 0 ? A[i - 1] : null); if (!aNext) throw new Error("展開失敗：A 節點無交點，請提高分段數或檢查尺寸"); A[i + 1] = aNext;
 
-    function switchTab(tabName) {
-        document.getElementById('tab-cement').className = 'tab-content' + (tabName==='cement'?' active':'');
-        document.getElementById('tab-agg').className = 'tab-content' + (tabName==='agg'?' active':'');
-        document.getElementById('btn-cement').className = 'tab-btn' + (tabName==='cement'?' active':'');
-        document.getElementById('btn-agg').className = 'tab-btn' + (tabName==='agg'?' active':'');
-        if(tabName === 'cement') runCement(); else runAgg();
-    }
+const bNextCands = circleIntersections(B[i], bb, A[i + 1], ab); const bNext = selectByDirection(bNextCands, B[i], i > 0 ? B[i - 1] : null); if (!bNext) throw new Error("展開失敗：B 節點無交點，請提高分段數或檢查尺寸"); B[i + 1] = bNext; } return { A, B }; }
 
-    // --- 水泥桶邏輯 ---
-    function runCement() {
-        const W_req = val('c_weight'), rho = val('c_rho') || 1, D_out = val('c_dia');
-        const plateH = val('c_plate_h'), ang = val('c_angle'), t_mm = val('c_thick'), fb = val('c_fb');
-        const d_raw = val('c_out_val'), d_out = (document.getElementById('c_out_unit').value==='inch')?(d_raw*0.0254):d_raw;
+function compute() { const mode = $("mode").value; const singleInputMode = $("singleInputMode").value; const D = num("D"); const d = num("d"); const t = num("t"); const HInput = num("H"); const angleInput = num("angle"); const Pinput = num("P"); const bigTopLen = num("bigTopLen"); const smallTopLen = num("smallTopLen"); const bigHeightCal = num("bigHeightCal"); const segments = Math.max(12, Math.floor(num("segments") || 120));
 
-        const R_m = D_out/2, r_m = d_out/2;
-        const h_cone = (R_m - r_m) * Math.tan(ang * Math.PI/180);
-        const V_cone = (Math.PI * h_cone / 3) * (R_m*R_m + R_m*r_m + r_m*r_m);
-        const Area = Math.PI * R_m * R_m;
-        const h_cyl_act = (Math.ceil(((W_req/rho - V_cone)/Area + fb)/plateH)||1) * plateH;
+const msg = $("msg"); msg.className = "note"; msg.textContent = "";
 
-        document.getElementById('res_c_layers').innerText = (h_cyl_act/plateH).toFixed(0);
-        document.getElementById('res_c_total').innerText = (h_cyl_act + h_cone).toFixed(2) + " m";
-        document.getElementById('res_c_max').innerText = ((V_cone + Area*h_cyl_act)*rho).toFixed(1);
+if (![D, d, t].every(Number.isFinite)) { throw new Error("請輸入有效數字"); } if (D <= 0 || d < 0 || t < 0) throw new Error("尺寸必須為正值"); if (D <= d) throw new Error("需滿足 D > d"); if (t >= d) throw new Error("板厚過大，需小於小徑 d");
 
-        // 展開計算
-        const Dm = D_out - t_mm/1000, dm = d_out - t_mm/1000;
-        const L_slope = Math.sqrt(h_cone**2 + ((Dm-dm)/2)**2);
-        const R_unf = (L_slope * Dm) / (Dm - dm), r_unf = (L_slope * dm) / (Dm - dm);
-        const theta = (Math.PI * (Dm - dm)) / L_slope;
-        const MW = 2 * (R_unf * Math.sin(theta/2)) * 1000, MH = (R_unf * (1-Math.cos(theta/2)) + (R_unf-r_unf)) * 1000;
-        
-        document.getElementById('unf_area').innerText = `${MW.toFixed(0)} × ${MH.toFixed(0)} mm`;
-        document.getElementById('unf_R').innerText = (R_unf*1000).toFixed(0) + " mm";
-        
-        currentUnfoldModel = { R_mm: R_unf*1000, r_mm: r_unf*1000, theta: theta, MW, MH };
-        drawSilo(D_out, h_cyl_act, h_cone, d_out, h_cyl_act/plateH);
-        drawUnfold(currentUnfoldModel);
-    }
+let P = D / 2; if (mode === "dualHalf") { P = Number.isFinite(Pinput) && Pinput > 0 ? Pinput : D / 2; } const dr = (D - d) / 2; let H = HInput; if (mode === "single" && singleInputMode === "angle") { if (!Number.isFinite(angleInput) || angleInput <= 0 || angleInput >= 90) { throw new Error("上方夾角 α 需介於 0~90 度"); } H = dr * Math.tan(angleInput * Math.PI / 180); } else { if (!Number.isFinite(HInput) || HInput <= 0) { throw new Error("高度 H 必須大於 0"); } } if (mode === "dualHalf" && (!Number.isFinite(H) || H <= 0)) { throw new Error("雙出口模式需輸入有效高度 H"); } const L = Math.sqrt(H * H + dr * dr); const alpha = Math.atan(H / dr); const alphaDeg = alpha * 180 / Math.PI;
 
-    // --- 骨材庫邏輯 (恢復) ---
-    function runAgg() {
-        const L = val('a_L_tot'), W = val('a_W_tot'), H_box = val('a_H_box');
-        const h_s = val('a_h_sand'), rho_s = val('a_rho_sand'), out_Ls = val('a_out_Ls'), out_Ws = val('a_out_Ws');
-        const h_st = val('a_h_stone'), rho_st = val('a_rho_stone'), out_Lst = val('a_out_Lst'), out_Wst = val('a_out_Wst');
+const Dm = D - t; const dm = d - t; const dDm = Dm - dm;
 
-        const L_c = L/2, W_c = W/2, A_t = L_c * W_c;
-        const V_s = A_t*H_box + (h_s/3)*(A_t + out_Ls*out_Ws + Math.sqrt(A_t*out_Ls*out_Ws));
-        const V_st = A_t*H_box + (h_st/3)*(A_t + out_Lst*out_Wst + Math.sqrt(A_t*out_Lst*out_Wst));
+const R = L * Dm / dDm; const r = L * dm / dDm; const theta = Math.PI * dDm / L; const thetaDeg = theta * 180 / Math.PI;
 
-        document.getElementById('res_a_top').innerText = `${L_c} x ${W_c} m`;
-        document.getElementById('res_a_vol_s').innerText = V_s.toFixed(2) + " m³";
-        document.getElementById('res_a_vol_st').innerText = V_st.toFixed(2) + " m³";
-        document.getElementById('res_a_weight').innerText = (V_s*rho_s*2 + V_st*rho_st*2).toFixed(1);
+let pts; let thetaUsed; let thetaDegUsed; let outerArcLen; let innerArcLen; let Amax; let Bmax; let method = "圓錐台展開"; let ribs = []; let pieces = [];
 
-        drawAgg(L, H_box, h_s, h_st, out_Ls, out_Lst);
-    }
+if (mode === "dualHalf") { const Rt = Dm / 2; const rb = dm / 2; const a3 = []; const b3 = []; for (let i = 0; i <= segments; i++) { const u = i / segments; const ang = Math.PI * u; // 上方半圓：右端 -> 左端 a3.push([Rt * Math.cos(ang), Rt * Math.sin(ang), 0]); b3.push([P / 2 + rb * Math.cos(ang), rb * Math.sin(ang), -H]); } const unfoldedOuter = unfoldStrip(a3, b3); const polyOuter = [...unfoldedOuter.A, ...unfoldedOuter.B.slice().reverse()]; const ribsOuter = unfoldedOuter.A.map((pa, i) => [pa, unfoldedOuter.B[i]]);
 
-    // --- 繪圖 Helpers ---
-    function val(id) { return parseFloat(document.getElementById(id).value) || 0; }
+const a3inner = []; const b3inner = []; for (let i = 0; i <= segments; i++) { const u = i / segments; a3inner.push([Rt - Dm * u, 0, 0]); // 上方直徑：右端 -> 左端 const ang2 = 2 * Math.PI - Math.PI * u; // 下方另一半圓：右端 -> 左端 b3inner.push([P / 2 + rb * Math.cos(ang2), rb * Math.sin(ang2), -H]); } const unfoldedInner = unfoldStrip(a3inner, b3inner); const polyInner = [...unfoldedInner.A, ...unfoldedInner.B.slice().reverse()]; const ribsInner = unfoldedInner.A.map((pa, i) => [pa, unfoldedInner.B[i]]);
 
-    function drawSilo(D, h1, h2, d, layers) {
-        const svg = document.getElementById('svgCement'); svg.innerHTML = '';
-        const ppm = 380 / (h1+h2), W = D*ppm, H1 = h1*ppm, H2 = h2*ppm, d_px = d*ppm, cx = 200, x = cx-W/2;
-        svg.innerHTML += `<rect x="${x}" y="50" width="${W}" height="${H1}" fill="#e9ecef" stroke="#333" stroke-width="2"/>`;
-        svg.innerHTML += `<polygon points="${x},${50+H1} ${x+W},${50+H1} ${cx+d_px/2},${50+H1+H2} ${cx-d_px/2},${50+H1+H2}" fill="#e9ecef" stroke="#333" stroke-width="2"/>`;
-        for(let i=1; i<layers; i++) svg.innerHTML += `<line x1="${x}" y1="${50+(H1/layers)*i}" x2="${x+W}" y2="${50+(H1/layers)*i}" stroke="#999" stroke-dasharray="5,5"/>`;
-    }
+let rawPieces = [ { name: "outer", pts: polyOuter, ribs: ribsOuter }, { name: "inner", pts: polyInner, ribs: ribsInner } ]; if (Number.isFinite(bigTopLen) && Number.isFinite(smallTopLen) && Number.isFinite(bigHeightCal) && bigTopLen > 0 && smallTopLen > 0 && bigHeightCal > 0) { rawPieces = [ calibratePieceByTopAndHeight(rawPieces[0], bigTopLen, bigHeightCal), calibratePieceByTopAndHeight(rawPieces[1], smallTopLen, bigHeightCal) ]; } pieces = layoutPieces(rawPieces); pts = pieces.flatMap((pc) => pc.pts); ribs = pieces.flatMap((pc) => pc.ribs); outerArcLen = 0; innerArcLen = 0; for (let i = 0; i < unfoldedOuter.A.length - 1; i++) outerArcLen += dist2(unfoldedOuter.A[i], unfoldedOuter.A[i + 1]); for (let i = 0; i < unfoldedOuter.B.length - 1; i++) innerArcLen += dist2(unfoldedOuter.B[i], unfoldedOuter.B[i + 1]); const bb = bboxOfPieces(pieces); Amax = bb.maxX - bb.minX; Bmax = bb.maxY - bb.minY; thetaUsed = NaN; thetaDegUsed = NaN; method = "放樣分割近似展開（雙片）"; } else { thetaUsed = theta; thetaDegUsed = theta * 180 / Math.PI; outerArcLen = thetaUsed * R; innerArcLen = thetaUsed * r; const ring = buildRingPoints(R, r, thetaUsed, segments); pts = ring.pts; ribs = ring.outer.map((po, i) => [po, ring.inner[i]]); pieces = [{ name: "single", pts, ribs }]; const bb = bbox(pts); Amax = bb.maxX - bb.minX; Bmax = bb.maxY - bb.minY; }
 
-    function drawUnfold(m) {
-        const svg = document.getElementById('svgUnfold'); svg.innerHTML = '';
-        const scale = 400 / Math.max(m.MW, m.MH), R = m.R_mm*scale, r = m.r_mm*scale, cx = 250, cy = 250;
-        const sa = -Math.PI/2 - m.theta/2, ea = -Math.PI/2 + m.theta/2;
-        const d = `M ${cx+R*Math.cos(sa)} ${cy+R*Math.sin(sa)} A ${R} ${R} 0 ${m.theta>Math.PI?1:0} 1 ${cx+R*Math.cos(ea)} ${cy+R*Math.sin(ea)} L ${cx+r*Math.cos(ea)} ${cy+r*Math.sin(ea)} A ${r} ${r} 0 ${m.theta>Math.PI?1:0} 0 ${cx+r*Math.cos(sa)} ${cy+r*Math.sin(sa)} Z`;
-        svg.innerHTML += `<path d="${d}" fill="#efe8cf" stroke="#27ae60" stroke-width="2"/>`;
-    }
+model = { mode, method, D, d, t, P, alphaDeg, H, L, Dm, dm, R, r, theta: thetaUsed, thetaDeg: thetaDegUsed, outerArcLen, innerArcLen, Amax, Bmax, pts, ribs, pieces, segments }; return model; }
 
-    function drawAgg(L, H_box, h_s, h_st, ws, wst) {
-        const svg = document.getElementById('svgAgg'); svg.innerHTML = '';
-        const ppm = 350 / (H_box + Math.max(h_s, h_st) + 1), W = (L/2)*ppm, H1 = H_box*ppm, x = (500-W*2)/2, y = 50;
-        svg.innerHTML += `<rect x="${x}" y="${y}" width="${W}" height="${H1}" fill="#fff3e0" stroke="#333" stroke-width="2"/>`;
-        svg.innerHTML += `<rect x="${x+W}" y="${y}" width="${W}" height="${H1}" fill="#f5f5f5" stroke="#333" stroke-width="2"/>`;
-        svg.innerHTML += `<polygon points="${x},${y+H1} ${x+W},${y+H1} ${x+W/2+ws*ppm/2},${y+H1+h_s*ppm} ${x+W/2-ws*ppm/2},${y+H1+h_s*ppm}" fill="none" stroke="#d35400" stroke-width="2"/>`;
-        svg.innerHTML += `<polygon points="${x+W},${y+H1} ${x+W*2},${y+H1} ${x+W*1.5+wst*ppm/2},${y+H1+h_st*ppm} ${x+W*1.5-wst*ppm/2},${y+H1+h_st*ppm}" fill="none" stroke="#7f8c8d" stroke-width="2"/>`;
-    }
+function buildRingPoints(R, r, theta, n) { const pts = []; const outer = []; const inner = []; const start = -theta / 2; const end = theta / 2; for (let i = 0; i <= n; i++) { const a = start + (end - start) * (i / n); const p = [R * Math.cos(a), R * Math.sin(a)]; outer.push(p); pts.push(p); } for (let i = n; i >= 0; i--) { const a = start + (end - start) * (i / n); const p = [r * Math.cos(a), r * Math.sin(a)]; inner[i] = p; pts.push(p); } return { pts, outer, inner }; }
 
-    function downloadDXF() {
-        if(!currentUnfoldModel) return;
-        const m = currentUnfoldModel, segs = 100, sa = -Math.PI/2 - m.theta/2;
-        let dxf = "0\nSECTION\n2\nENTITIES\n";
-        for(let i=0; i<segs; i++) {
-            const a1 = sa + (m.theta*i/segs), a2 = sa + (m.theta*(i+1)/segs);
-            dxf += `0\nLINE\n8\nUNFOLD\n10\n${(m.R_mm*Math.cos(a1)).toFixed(1)}\n20\n${(m.R_mm*Math.sin(a1)).toFixed(1)}\n11\n${(m.R_mm*Math.cos(a2)).toFixed(1)}\n21\n${(m.R_mm*Math.sin(a2)).toFixed(1)}\n`;
-            dxf += `0\nLINE\n8\nUNFOLD\n10\n${(m.r_mm*Math.cos(a1)).toFixed(1)}\n20\n${(m.r_mm*Math.sin(a1)).toFixed(1)}\n11\n${(m.r_mm*Math.cos(a2)).toFixed(1)}\n21\n${(m.r_mm*Math.sin(a2)).toFixed(1)}\n`;
-        }
-        dxf += "0\nENDSEC\n0\nEOF";
-        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([dxf], {type:'application/dxf'})); a.download = 'unfold.dxf'; a.click();
-    }
+function bbox(pts) { let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity; for (const [x, y] of pts) { if (x < minX) minX = x; if (y < minY) minY = y; if (x > maxX) maxX = x; if (y > maxY) maxY = y; } return { minX, minY, maxX, maxY }; }
 
-    window.onload = () => runCement();
-</script>
-</body>
-</html>
+function translatePts(pts, dx, dy) { return pts.map((p) => [p[0] + dx, p[1] + dy]); }
+
+function layoutPieces(pieces) { if (!pieces.length) return pieces; const out = []; let cursorX = 0; for (let i = 0; i < pieces.length; i++) { const bb = bbox(pieces[i].pts); const w = bb.maxX - bb.minX; const h = bb.maxY - bb.minY; const gap = Math.max(30, 0.08 * Math.max(w, h)); const dx = cursorX - bb.minX; const dy = -bb.minY; out.push({ name: pieces[i].name, pts: translatePts(pieces[i].pts, dx, dy), ribs: (pieces[i].ribs || []).map((rb) => [[rb[0][0] + dx, rb[0][1] + dy], [rb[1][0] + dx, rb[1][1] + dy]]) }); cursorX += w + gap; } return out; }
+
+function bboxOfPieces(pieces) { let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity; for (const pc of pieces) { const bb = bbox(pc.pts); minX = Math.min(minX, bb.minX); minY = Math.min(minY, bb.minY); maxX = Math.max(maxX, bb.maxX); maxY = Math.max(maxY, bb.maxY); } return { minX, minY, maxX, maxY }; }
+
+function calibratePieceByTopAndHeight(piece, targetTopLen, targetHeight) { const pts = piece.pts; const bb = bbox(pts); const h = Math.max(1e-9, bb.maxY - bb.minY); const band = Math.max(1, h * 0.03); const topPts = pts.filter((p) => p[1] >= bb.maxY - band); if (topPts.length < 2) return piece; let left = topPts[0], right = topPts[0]; for (const p of topPts) { if (p[0] < left[0]) left = p; if (p[0] > right[0]) right = p; } const topLen = Math.max(1e-9, Math.abs(right[0] - left[0])); const sx = targetTopLen > 0 ? targetTopLen / topLen : 1; const sy = targetHeight > 0 ? targetHeight / h : 1; const txPts = pts.map((p) => [p[0] * sx, p[1] * sy]); const txRibs = (piece.ribs || []).map((rb) => [ [rb[0][0] * sx, rb[0][1] * sy], [rb[1][0] * sx, rb[1][1] * sy] ]); return { name: piece.name, pts: txPts, ribs: txRibs }; }
+
+function renderResult(m) { const rows = [ ["模式", m.mode === "dualHalf" ? "雙出口單邊（對稱）" : "單出口完整展開"], ["算法", m.method], ["兩出口中心距 P", m.mode === "dualHalf" ? `${f(m.P)} mm` : "---"], ["錐高 H", `${f(m.H)} mm`], ["換算夾角 α", `${f(m.alphaDeg, 3)} deg`], ["母線長 L (=B)", `${f(m.L)} mm`], ["扇形角 θ", Number.isFinite(m.thetaDeg) ? `${f(m.thetaDeg)} deg` : "---"], ["外半徑 R", `${f(m.R)} mm`], ["內半徑 r", `${f(m.r)} mm`], ["外弧長 A", `${f(m.outerArcLen)} mm`], ["內弧長 a", `${f(m.innerArcLen)} mm`], ["展開最大寬 Amax", `${f(m.Amax)} mm`], ["展開最大高 Bmax", `${f(m.Bmax)} mm`] ];
+
+$("results").innerHTML = rows.map(([k, v]) => ` <div class="result-row"><div class="k">${k}</div><div class="v">${v}</div></div> `).join(""); }
+
+function renderSvg(m) { const svg = $("preview"); const bb = (m.pieces && m.pieces.length) ? bboxOfPieces(m.pieces) : bbox(m.pts); const pad = Math.max(20, 0.08 * Math.max(m.Amax, m.Bmax)); const w = bb.maxX - bb.minX; const h = bb.maxY - bb.minY; svg.setAttribute("viewBox", `${bb.minX - pad} ${bb.minY - pad} ${w + pad * 2} ${h + pad * 2}`);
+
+const pathList = (m.pieces && m.pieces.length ? m.pieces : [{ pts: m.pts }]).map((pc, i) => { const pathD = pc.pts.map((p, j) => `${j === 0 ? "M" : "L"}${p[0]} ${p[1]}`).join(" ") + " Z"; const fill = i === 0 ? "#efe8cf" : "#e6f2ff"; return `<path d="${pathD}" fill="${fill}" stroke="#333" stroke-width="1.2" />`; }).join(""); const minX = bb.minX, maxX = bb.maxX, minY = bb.minY, maxY = bb.maxY; const offY = Math.max(14, h * 0.08); const offX = Math.max(14, w * 0.08); const dimTopY = minY - offY; const dimLeftX = minX - offX; const ribLines = (m.ribs || []).map((rb) => `<line x1="${rb[0][0]}" y1="${rb[0][1]}" x2="${rb[1][0]}" y2="${rb[1][1]}" stroke="#cc3b00" stroke-width="0.8" />` ).join(""); svg.innerHTML = ` <defs> <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"> <path d="M 0 0 L 10 5 L 0 10 z" fill="#2f4157"></path> </marker> </defs> ${pathList} ${ribLines} <line x1="0" y1="0" x2="${m.R}" y2="0" stroke="#444" stroke-dasharray="4 4" /> <line x1="0" y1="0" x2="${m.r}" y2="0" stroke="#666" stroke-dasharray="4 4" /> ${Number.isFinite(m.theta) ? `<line x1="${m.R * Math.cos(-m.theta / 2)}" y1="${m.R * Math.sin(-m.theta / 2)}" x2="${m.R * Math.cos(m.theta / 2)}" y2="${m.R * Math.sin(m.theta / 2)}" stroke="#7b5a00" stroke-width="0.8" />` : ""} <text x="${m.R * 0.05}" y="${-Math.max(12, h * 0.1)}" font-size="10" fill="#7b5a00">${Number.isFinite(m.thetaDeg) ? `θ=${f(m.thetaDeg, 2)}°` : "放樣分割近似展開"}</text>
+
+<line x1="${minX}" y1="${minY}" x2="${minX}" y2="${dimTopY}" stroke="#2f4157" stroke-width="0.8"/> <line x1="${maxX}" y1="${minY}" x2="${maxX}" y2="${dimTopY}" stroke="#2f4157" stroke-width="0.8"/> <line x1="${minX}" y1="${dimTopY}" x2="${maxX}" y2="${dimTopY}" stroke="#2f4157" stroke-width="1" marker-start="url(#arrow)" marker-end="url(#arrow)"/> <text x="${(minX + maxX) / 2}" y="${dimTopY - 4}" text-anchor="middle" font-size="10" fill="#2f4157">Amax=${f(m.Amax)} mm</text>
+
+<line x1="${minX}" y1="${minY}" x2="${dimLeftX}" y2="${minY}" stroke="#2f4157" stroke-width="0.8"/> <line x1="${minX}" y1="${maxY}" x2="${dimLeftX}" y2="${maxY}" stroke="#2f4157" stroke-width="0.8"/> <line x1="${dimLeftX}" y1="${minY}" x2="${dimLeftX}" y2="${maxY}" stroke="#2f4157" stroke-width="1" marker-start="url(#arrow)" marker-end="url(#arrow)"/> <text x="${dimLeftX - 3}" y="${(minY + maxY) / 2}" text-anchor="end" font-size="10" fill="#2f4157">Bmax=${f(m.Bmax)} mm</text>
+
+<line x1="0" y1="0" x2="${m.R}" y2="0" stroke="#444" stroke-width="0.8" marker-end="url(#arrow)"/> <line x1="0" y1="0" x2="${m.r}" y2="0" stroke="#666" stroke-width="0.8" marker-end="url(#arrow)"/> <text x="${m.R * 0.56}" y="${Math.max(12, h * 0.08)}" font-size="10" fill="#333">R=${f(m.R)} mm</text> <text x="${m.r * 0.45}" y="${Math.max(24, h * 0.13)}" font-size="10" fill="#333">r=${f(m.r)} mm</text> <text x="${(minX + maxX) / 2}" y="${maxY + Math.max(14, h * 0.08)}" text-anchor="middle" font-size="10" fill="#333">${m.mode === "dualHalf" ? "單邊" : "完整"} A(外弧)=${f(m.outerArcLen)} mm；a(內弧)=${f(m.innerArcLen)} mm；B(母線)=${f(m.L)} mm</text> `; }
+
+function dxfFromPoints(pieces, ribs = []) { const lines = []; lines.push("0","SECTION","2","HEADER","0","ENDSEC"); lines.push("0","SECTION","2","ENTITIES"); for (let p = 0; p < pieces.length; p++) { const pts = pieces[p].pts; const layer = p === 0 ? "OUTER" : "INNER"; for (let i = 0; i < pts.length; i++) { const p1 = pts[i]; const p2 = pts[(i + 1) % pts.length]; lines.push("0","LINE"); lines.push("8", layer); lines.push("10", f(p1[0], 6)); lines.push("20", f(p1[1], 6)); lines.push("30","0.0"); lines.push("11", f(p2[0], 6)); lines.push("21", f(p2[1], 6)); lines.push("31","0.0"); } } for (const rb of ribs) { lines.push("0","LINE"); lines.push("8","RIB"); lines.push("10", f(rb[0][0], 6)); lines.push("20", f(rb[0][1], 6)); lines.push("30","0.0"); lines.push("11", f(rb[1][0], 6)); lines.push("21", f(rb[1][1], 6)); lines.push("31","0.0"); } lines.push("0","ENDSEC","0","EOF"); return lines.join("\n"); }
+
+function download(filename, data, type) { const blob = new Blob([data], { type }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url); }
+
+function svgText() { const m = model; const bb = (m.pieces && m.pieces.length) ? bboxOfPieces(m.pieces) : bbox(m.pts); const pad = Math.max(20, 0.08 * Math.max(m.Amax, m.Bmax)); const w = bb.maxX - bb.minX; const h = bb.maxY - bb.minY; const vb = `${bb.minX - pad} ${bb.minY - pad} ${w + pad * 2} ${h + pad * 2}`; const paths = (m.pieces && m.pieces.length ? m.pieces : [{ pts: m.pts }]).map((pc) => { const pathD = pc.pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0]} ${p[1]}`).join(" ") + " Z"; return `<path d="${pathD}" fill="none" stroke="black" stroke-width="1"/>`; }).join("\n "); return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}">\n ${paths}\n</svg>`; }
+
+async function downloadPng() { const text = svgText(); const img = new Image(); const svgBlob = new Blob([text], { type: "image/svg+xml;charset=utf-8" }); const url = URL.createObjectURL(svgBlob);
+
+await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; img.src = url; });
+
+const canvas = document.createElement("canvas"); canvas.width = img.width || 1600; canvas.height = img.height || 1000; const ctx = canvas.getContext("2d"); ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+URL.revokeObjectURL(url); canvas.toBlob((blob) => { const out = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = out; a.download = "cone_unfold.png"; a.click(); URL.revokeObjectURL(out); }, "image/png"); }
+
+function run() { try { const m = compute(); renderResult(m); renderSvg(m); $("msg").innerHTML = `<span class="ok">已完成計算，可下載 DXF / SVG / PNG。</span>`; $("dxfBtn").disabled = false; $("svgBtn").disabled = false; $("pngBtn").disabled = false; } catch (e) { $("msg").innerHTML = `<span class="warn">${e.message}</span>`; $("results").innerHTML = ""; $("preview").innerHTML = ""; $("dxfBtn").disabled = true; $("svgBtn").disabled = true; $("pngBtn").disabled = true; } }
+
+function syncModeUI() { const dual = $("mode").value === "dualHalf"; const single = $("mode").value === "single"; const byAngle = $("singleInputMode").value === "angle"; $("pWrap").style.display = dual ? "block" : "none"; $("dualCalWrap1").style.display = dual ? "block" : "none"; $("dualCalWrap2").style.display = dual ? "block" : "none"; $("dualCalWrap3").style.display = dual ? "block" : "none"; $("singleInputModeWrap").style.display = single ? "block" : "none"; $("angleWrap").style.display = single && byAngle ? "block" : "none"; $("H").disabled = single && byAngle; if (dual && (!num("P") || num("P") <= 0)) { $("P").value = f(num("D") / 2, 3); } }
+
+$("calcBtn").addEventListener("click", run); $("mode").addEventListener("change", () => { syncModeUI(); run(); }); $("singleInputMode").addEventListener("change", () => { syncModeUI(); run(); }); $("D").addEventListener("input", () => { if ($("mode").value === "dualHalf") $("P").value = f(num("D") / 2, 3); if ($("mode").value === "single" && $("singleInputMode").value === "angle") run(); }); $("angle").addEventListener("input", () => { if ($("mode").value === "single" && $("singleInputMode").value === "angle") run(); }); $("dxfBtn").addEventListener("click", () => { const pieces = model.pieces && model.pieces.length ? model.pieces : [{ pts: model.pts }]; const dxf = dxfFromPoints(pieces, model.ribs || []); download("cone_unfold.dxf", dxf, "application/dxf"); }); $("svgBtn").addEventListener("click", () => { download("cone_unfold.svg", svgText(), "image/svg+xml"); }); $("pngBtn").addEventListener("click", downloadPng);
+
+syncModeUI(); run(); </script></body></html>
