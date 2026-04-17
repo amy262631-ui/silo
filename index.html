@@ -343,8 +343,8 @@ function drawA(L,Hb,hs,hst,ws,wst){
   s+=`<polygon points="${x+Wh},${y2} ${x+Wh*2},${y2} ${cxst+wstpx/2},${y2+Hstpx} ${cxst-wstpx/2},${y2+Hstpx}" fill="rgba(136,135,128,.07)" stroke="#888780" stroke-width="2"/>`;
   s+=`<text x="${cxs}" y="${y+Hbpx/2+6}" fill="#993C1D" font-size="15" text-anchor="middle" font-family="monospace" font-weight="500">砂</text>`;
   s+=`<text x="${cxst}" y="${y+Hbpx/2+6}" fill="#5F5E5A" font-size="15" text-anchor="middle" font-family="monospace" font-weight="500">石</text>`;
-  s+=`<text x="${cxs}" y="${y2+Hspx+15}" fill="#993C1D" font-size="11" text-anchor="middle" font-family="monospace">${hs.toFixed(3)}m</text>`;
-  s+=`<text x="${cxst}" y="${y2+Hstpx+15}" fill="#888780" font-size="11" text-anchor="middle" font-family="monospace">${hst.toFixed(3)}m</text>`;
+  s+=dimV(x-14, y2, Hspx, `${hs.toFixed(3)}m`, '#D85A30', 'r', 'end');
+s+=dimV(x+Wh*2+16, y2, Hstpx, `${hst.toFixed(3)}m`, '#888780', 'g', 'start');
   s+=dimH(x,y-18,Wh*2,`L = ${v('a_L').toFixed(1)} m`);
   let rx=x+Wh*2+16;
   s+=`<line x1="${x+Wh*2}" y1="${y}" x2="${rx+8}" y2="${y}" stroke="#ccc" stroke-dasharray="3,3"/>`;
@@ -353,7 +353,7 @@ function drawA(L,Hb,hs,hst,ws,wst){
   let diff=Math.abs(hs-hst);
   if(diff>0.005){
     let my1=y2+Math.min(Hspx,Hstpx),my2=y2+Math.max(Hspx,Hstpx);
-    let mx=x+Wh*2+40;
+    let mx=x+Wh*2+60;
     s+=`<line x1="${hs>hst?x+Wh:x+Wh*2}" y1="${my2}" x2="${mx+8}" y2="${my2}" stroke="#F0997B" stroke-dasharray="2,2"/>`;
     s+=dimV(mx+4,my1,my2-my1,`Δ${diff.toFixed(3)}`,'#D85A30','r','start');
   }
